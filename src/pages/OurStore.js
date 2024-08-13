@@ -37,7 +37,7 @@ function OurStore() {
                         value=""
                         id=""
                       />
-                      <label class="form-check-label" for="">
+                      <label className="form-check-label" htmlFor="">
                         In Stock (1)
                       </label>
                     </div>
@@ -48,7 +48,7 @@ function OurStore() {
                         value=""
                         id=""
                       />
-                      <label class="form-check-label" for="">
+                      <label className="form-check-label" htmlFor="">
                         Out of Stock (0)
                       </label>
                     </div>
@@ -105,7 +105,7 @@ function OurStore() {
                         value=""
                         id=""
                       />
-                      <label class="form-check-label" for="">
+                      <label className="form-check-label" htmlFor="">
                         S (1)
                       </label>
                     </div>
@@ -116,7 +116,7 @@ function OurStore() {
                         value=""
                         id=""
                       />
-                      <label class="form-check-label" for="">
+                      <label className="form-check-label" htmlFor="">
                         M (2)
                       </label>
                     </div>
@@ -160,7 +160,7 @@ function OurStore() {
                       <ReactStars
                         count={5}
                         size={24}
-                        value="3"
+                        value={3}
                         edit={false}
                         activeColor="#ffd700"
                       />
@@ -182,7 +182,7 @@ function OurStore() {
                       <ReactStars
                         count={5}
                         size={24}
-                        value="3"
+                        value={3}
                         edit={false}
                         activeColor="#ffd700"
                       />
@@ -196,12 +196,17 @@ function OurStore() {
               <div className="filter-short-grid mb-4">
                 <div className="d-flex justify-content-between align-items-center">
                   <div className="d-flex align-items-center gap-10">
-                    <p className="mb-0 d-block">Short by: </p>
-                    <select className="form-control form-select" id="">
+                    <p className="mb-0 d-block" style={{ width: 100 }}>
+                      Short by:{" "}
+                    </p>
+                    <select
+                      name=""
+                      defaultValue={"manual"}
+                      className="form-control form-select"
+                      id=""
+                    >
                       <option value="manual">Featured</option>
-                      <option value="best-selling" selected="selected">
-                        Best selling
-                      </option>
+                      <option value="best-selling">Best selling</option>
                       <option value="title-ascending">
                         Alphabetically. A-Z
                       </option>

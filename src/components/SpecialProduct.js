@@ -16,7 +16,7 @@ function SpecialProduct() {
             <ReactStars
               count={5}
               size={24}
-              value="3"
+              value={3}
               edit={false}
               activeColor="#ffd700"
             />
@@ -35,7 +35,7 @@ function SpecialProduct() {
             </div>
             <div className="prod-count my-3">
               <p>Product: 5</p>
-              <div class="progress">
+              <div className="progress">
                 <div
                   className="progress-bar"
                   role="progressbar"

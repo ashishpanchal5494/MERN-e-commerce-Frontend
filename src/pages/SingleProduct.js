@@ -80,7 +80,7 @@ function SingleProduct() {
                     <ReactStars
                       count={5}
                       size={24}
-                      value="3"
+                      value={3}
                       edit={true}
                       activeColor="#ffd700"
                     />
@@ -220,7 +220,7 @@ function SingleProduct() {
                       <ReactStars
                         count={5}
                         size={24}
-                        value="3"
+                        value={3}
                         edit={true}
                         activeColor="#ffd700"
                       />
@@ -245,7 +245,7 @@ function SingleProduct() {
                       <ReactStars
                         count={5}
                         size={24}
-                        value="3"
+                        value={3}
                         edit={false}
                         activeColor="#ffd700"
                       />
@@ -272,7 +272,7 @@ function SingleProduct() {
                       <ReactStars
                         count={5}
                         size={24}
-                        value="3"
+                        value={3}
                         edit={false}
                         activeColor="#ffd700"
                       />
