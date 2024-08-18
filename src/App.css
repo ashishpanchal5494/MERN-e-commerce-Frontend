@@ -617,6 +617,7 @@ margin-bottom: 7px;
     background-color: white;
     width: 500px;
     margin: 30px auto;
+    border-radius: 15px;
 }
 
 .auth-card h3{
@@ -644,13 +645,13 @@ margin-bottom: 7px;
     color: var(--color-1c1c1b);
 }
 
-.auth-card, .signup {
+.auth-card .signup {
     background-color: var(--color-febd69);
     color: var(--color-131921);
     border: none;
 }
 
-.auth-card, .signup:hover {
+.auth-card .signup:hover {
     background-color: var(--color-131921);
     color: white;
 }
