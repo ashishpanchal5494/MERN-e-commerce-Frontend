@@ -1,22 +1,74 @@
-import React, { useState } from "react";
-import Meta from "../components/Meta";
-import BreadCrumb from "../components/BreadCrumb";
+import React, { useEffect, useState } from "react";
 import ReactStars from "react-rating-stars-component";
-import ProductCard from "../components/ProductCard";
+import BreadCrumb from "../components/BreadCrumb";
+import Meta from "../components/Meta";
 import ReactImageZoom from "react-image-zoom";
 import Color from "../components/Color";
-import { Link } from "react-router-dom";
-import { GoGitCompare } from "react-icons/go";
-import { CiHeart } from "react-icons/ci";
+import { TbGitCompare } from "react-icons/tb";
+import { AiOutlineHeart } from "react-icons/ai";
+import { useLocation, useNavigate } from "react-router-dom";
+import Container from "../components/Container";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addRating,
+  getAProduct,
+  getAllProducts,
+} from "../features/product/productSlice";
+import { toast } from "react-toastify";
+import { addProdToCart, getUserCart } from "../features/user/userSlice";
+import SingleProductCard from "../components/SingleProductCard";
 
-function SingleProduct() {
-  const props = {
-    width: 600,
-    height: 500,
-    zoomWidth: 600,
-    img: "https://media.istockphoto.com/id/1371695315/photo/iphone-13-pro-sierra-blue.jpg?s=612x612&w=0&k=20&c=-0Mr9DdIRHFoLUozdltlHdkum0ChCNTGfLhxc-3oHmI=",
+const SingleProduct = () => {
+  const [color, setColor] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [alreadyAdded, setAlreadyAdded] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const getProductId = location.pathname.split("/")[2];
+  const dispatch = useDispatch();
+  const productState = useSelector((state) => state?.product?.singleproduct);
+  const productsState = useSelector((state) => state?.product?.product);
+  const cartState = useSelector((state) => state?.auth?.cartProducts);
+
+  useEffect(() => {
+    dispatch(getAProduct(getProductId));
+    dispatch(getUserCart());
+    dispatch(getAllProducts());
+  }, [getProductId, dispatch]);
+  useEffect(() => {
+    for (let index = 0; index < cartState?.length; index++) {
+      if (getProductId === cartState[index]?.productId?._id) {
+        setAlreadyAdded(true);
+      }
+    }
+  }, [cartState, getProductId]);
+
+  const uploadCart = () => {
+    if (color === null) {
+      toast.error("Please Choose Color");
+      return false;
+    } else {
+      dispatch(
+        addProdToCart({
+          productId: productState?._id,
+          quantity,
+          color,
+          price: productState?.price,
+        })
+      );
+      navigate("/cart");
+    }
   };
-  const [orderProduct, setOrderProduct] = useState(true);
+
+  const props = {
+    width: 594,
+    height: 600,
+    zoomWidth: 600,
+
+    img: productState?.images[0]?.url
+      ? productState?.images[0]?.url
+      : "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg",
+  };
 
   const copyToClipboard = (text) => {
     console.log("text", text);
@@ -27,285 +79,322 @@ function SingleProduct() {
     document.execCommand("copy");
     textField.remove();
   };
+
+  const [popularProduct, setPopularProduct] = useState([]);
+  useEffect(() => {
+    let data = [];
+    for (let index = 0; index < productsState.length; index++) {
+      const element = productsState[index];
+      if (element.tags === "popular") {
+        data.push(element);
+      }
+      setPopularProduct(data);
+    }
+  }, [productsState]);
+
+  const [star, setStar] = useState(null);
+  const [comment, setComment] = useState(null);
+  const addRatingToProduct = () => {
+    if (star === null) {
+      toast.error("Please add star rating");
+      return false;
+    } else if (comment === null) {
+      toast.error("Please Write Review About the Product.");
+      return false;
+    } else {
+      dispatch(
+        addRating({ star: star, comment: comment, prodId: getProductId })
+      );
+      setTimeout(() => {
+        dispatch(getAProduct(getProductId));
+      }, 100);
+    }
+    return false;
+  };
+
   return (
-    <div>
-      <Meta title={"Product name"} />
-      <BreadCrumb title="Product name" />
-      <div className="main-product-wrapper py-5 home-wrapper-2">
-        <div className="container-xxl ">
-          <div className="row">
-            <div className="col-6">
-              <div className="main-product-image">
-                <div>
-                  <ReactImageZoom {...props} />
-                </div>
+    <>
+      <Meta title={"Product Name"} />
+      <BreadCrumb title={productState?.title} />
+      <Container class1="main-product-wrapper py-5 home-wrapper-2">
+        <div className="row">
+          <div className="col-6">
+            <div className="main-product-image">
+              <div>
+                <ReactImageZoom {...props} />
               </div>
-              <div className="other-product-images d-flex flex-wrap gap-15">
-                <div>
-                  <img
-                    className="img-fluid"
-                    src="https://media.istockphoto.com/id/1371695315/photo/iphone-13-pro-sierra-blue.jpg?s=612x612&w=0&k=20&c=-0Mr9DdIRHFoLUozdltlHdkum0ChCNTGfLhxc-3oHmI="
+            </div>
+            <div className="other-product-images d-flex flex-wrap gap-15">
+              {productState?.images.map((item, index) => {
+                return (
+                  <div key={index}>
+                    <img src={item?.url} className="img-fluid" alt="" />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="col-6">
+            <div className="main-product-details">
+              <div className="border-bottom">
+                <h3 className="title">{productState?.title}</h3>
+              </div>
+              <div className="border-bottom py-3">
+                <p className="price">$ {productState?.price}</p>
+                <div className="d-flex align-items-center gap-10">
+                  <ReactStars
+                    count={5}
+                    size={24}
+                    value={productState?.totalratings}
+                    edit={false}
+                    activeColor="#ffd700"
                   />
+                  <p className="mb-0 t-review">( 2 Reviews )</p>
                 </div>
-                <div>
-                  <img
-                    className="img-fluid"
-                    src="https://media.istockphoto.com/id/1371695315/photo/iphone-13-pro-sierra-blue.jpg?s=612x612&w=0&k=20&c=-0Mr9DdIRHFoLUozdltlHdkum0ChCNTGfLhxc-3oHmI="
-                  />
+                <a className="review-btn" href="#review">
+                  Write a Review
+                </a>
+              </div>
+              <div className=" py-3">
+                <div className="d-flex gap-10 align-items-center my-2">
+                  <h3 className="product-heading">Type :</h3>
+                  <p className="product-data">Watch</p>
                 </div>
-                <div>
-                  <img
-                    className="img-fluid"
-                    src="https://media.istockphoto.com/id/1371695315/photo/iphone-13-pro-sierra-blue.jpg?s=612x612&w=0&k=20&c=-0Mr9DdIRHFoLUozdltlHdkum0ChCNTGfLhxc-3oHmI="
-                  />
+                <div className="d-flex gap-10 align-items-center my-2">
+                  <h3 className="product-heading">Brand :</h3>
+                  <p className="product-data">{productState?.brand}</p>
                 </div>
-                <div>
-                  <img
-                    className="img-fluid"
-                    src="https://media.istockphoto.com/id/1371695315/photo/iphone-13-pro-sierra-blue.jpg?s=612x612&w=0&k=20&c=-0Mr9DdIRHFoLUozdltlHdkum0ChCNTGfLhxc-3oHmI="
-                  />
+                <div className="d-flex gap-10 align-items-center my-2">
+                  <h3 className="product-heading">Category :</h3>
+                  <p className="product-data">{productState?.category}</p>
+                </div>
+                <div className="d-flex gap-10 align-items-center my-2">
+                  <h3 className="product-heading">Tags :</h3>
+                  <p className="product-data">{productState?.tags}</p>
+                </div>
+                <div className="d-flex gap-10 align-items-center my-2">
+                  <h3 className="product-heading">Availablity :</h3>
+                  <p className="product-data">In Stock</p>
+                </div>
+                {/*     <div className="d-flex gap-10 flex-column mt-2 mb-3">
+                  <h3 className="product-heading">Size :</h3>
+                  <div className="d-flex flex-wrap gap-15">
+                    <span className="badge border border-1 bg-white text-dark border-secondary">
+                      S
+                    </span>
+                    <span className="badge border border-1 bg-white text-dark border-secondary">
+                      M
+                    </span>
+                    <span className="badge border border-1 bg-white text-dark border-secondary">
+                      XL
+                    </span>
+                    <span className="badge border border-1 bg-white text-dark border-secondary">
+                      XXL
+                    </span>
+                  </div>
+                </div> */}
+                {alreadyAdded === false && (
+                  <>
+                    <div className="d-flex gap-10 flex-column mt-2 mb-3">
+                      <h3 className="product-heading">Color :</h3>
+                      <Color
+                        setColor={setColor}
+                        colorData={productState?.color}
+                      />
+                    </div>
+                  </>
+                )}
+                <div className="d-flex align-items-center gap-15 flex-row mt-2 mb-3">
+                  {alreadyAdded === false && (
+                    <>
+                      <h3 className="product-heading">Quantity :</h3>
+                      <div className="">
+                        <input
+                          type="number"
+                          name=""
+                          min={1}
+                          max={10}
+                          className="form-control"
+                          style={{ width: "70px" }}
+                          id=""
+                          onChange={(e) => setQuantity(e.target.value)}
+                          value={quantity}
+                        />
+                      </div>
+                    </>
+                  )}
+                  <div
+                    className={
+                      alreadyAdded
+                        ? "ms-0"
+                        : "ms-5" + "d-flex align-items-center gap-30 ms-5"
+                    }
+                  >
+                    <button
+                      className="button border-0"
+                      /*  data-bs-toggle="modal"
+                      data-bs-target="#staticBackdrop" */
+                      type="button"
+                      onClick={() => {
+                        alreadyAdded ? navigate("/cart") : uploadCart();
+                      }}
+                    >
+                      {alreadyAdded ? "Go To Cart" : "Add to Cart"}
+                    </button>
+                    {/*  <button className="button signup">Buy It Now</button> */}
+                  </div>
+                </div>
+                <div className="d-flex align-items-center gap-15">
+                  <div>
+                    <a href="">
+                      <TbGitCompare className="fs-5 me-2" /> Add to Compare
+                    </a>
+                  </div>
+                  <div>
+                    <a href="">
+                      <AiOutlineHeart className="fs-5 me-2" /> Add to Wishlist
+                    </a>
+                  </div>
+                </div>
+                <div className="d-flex gap-10 flex-column  my-3">
+                  <h3 className="product-heading">Shipping & Returns :</h3>
+                  <p className="product-data">
+                    Free shipping and returns available on all orders! <br /> We
+                    ship all US domestic orders within
+                    <b>5-10 business days!</b>
+                  </p>
+                </div>
+                <div className="d-flex gap-10 align-items-center my-3">
+                  <h3 className="product-heading">Product Link:</h3>
+                  <a
+                    href="javascript:void(0);"
+                    onClick={() => {
+                      copyToClipboard(window.location.href);
+                    }}
+                  >
+                    Copy Product Link
+                  </a>
                 </div>
               </div>
             </div>
-            <div className="col-6">
-              <div className="main-product-details">
-                <div className="border-bottom">
-                  <h3 className="title">
-                    Kids headphones bulk multi colored for students
-                  </h3>
-                </div>
-                <div className="border-bottom py-3">
-                  <p className="price">$ 100</p>
+          </div>
+        </div>
+      </Container>
+      <Container class1="description-wrapper py-5 home-wrapper-2">
+        <div className="row">
+          <div className="col-12">
+            <h4>Description</h4>
+            <div className="bg-white p-3">
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: productState?.description,
+                }}
+              ></p>
+            </div>
+          </div>
+        </div>
+      </Container>
+      <Container class1="reviews-wrapper home-wrapper-2">
+        <div className="row">
+          <div className="col-12">
+            <h3 id="review">Reviews</h3>
+            <div className="review-inner-wrapper">
+              <div className="review-head d-flex justify-content-between align-items-end">
+                <div>
+                  <h4 className="mb-2">Customer Reviews</h4>
                   <div className="d-flex align-items-center gap-10">
                     <ReactStars
                       count={5}
                       size={24}
-                      value={3}
-                      edit={true}
+                      value={4}
+                      edit={false}
                       activeColor="#ffd700"
                     />
-                    <p className="mb-0 t-review">(2 Reviews)</p>
-                  </div>
-                  <a href="#review">write a review</a>
-                </div>
-                <div className="border-bottom py-3">
-                  <div className="d-flex gap-10 align-items-center">
-                    <h3 className="product-heading">Type :</h3>{" "}
-                    <p className="product-data">Watch</p>
-                  </div>
-                  <div className="d-flex gap-10 align-items-center">
-                    <h3 className="product-heading">Brand :</h3>
-                    <p className="product-data">Havells</p>
-                  </div>
-                  <div className="d-flex gap-10 align-items-center">
-                    <h3 className="product-heading">Category :</h3>
-                    <p className="product-data">Watch</p>
-                  </div>
-                  <div className="d-flex gap-10 align-items-center">
-                    <h3 className="product-heading">Availablity :</h3>
-                    <p className="product-data">In Stock</p>
-                  </div>
-                  <div className="d-flex gap-10 flex-column mt-2 mb-3">
-                    <h3 className="product-heading">Size :</h3>
-                    <div className="d-flex flex-wrap gap-15">
-                      <span className="badge border border-1 bg-white text-dark border-secondary">
-                        S
-                      </span>
-                      <span className="badge border border-1 bg-white text-dark border-secondary">
-                        M
-                      </span>
-                      <span className="badge border border-1 bg-white text-dark border-secondary">
-                        XL
-                      </span>
-                      <span className="badge border border-1 bg-white text-dark border-secondary">
-                        XXL
-                      </span>
-                    </div>
-                  </div>
-                  <div className="d-flex gap-10 flex-column mt-2 mb-3">
-                    <h3 className="product-heading">Color :</h3>
-                    <Color />
-                  </div>
-                  <div className="d-flex align-items-center gap-15 flex-row mt-2 mb-3">
-                    <h3 className="product-heading">Quantity :</h3>
-                    <div className="">
-                      <input
-                        type="number"
-                        name=""
-                        min={1}
-                        max={10}
-                        className="form-control"
-                        style={{ width: 70 }}
-                        id=""
-                      />
-                    </div>
-                    <div className="d-flex align-items-center gap-30 ms-5">
-                      <button className="button border-0">Add to Cart</button>
-                      <button className="button signup">Buy Now</button>
-                    </div>
-                  </div>
-                  <div className="d-flex align-items-center gap-15">
-                    <div>
-                      <a href="">
-                        <GoGitCompare className="fs-5" /> Add to Campare
-                      </a>
-                    </div>
-                    <div>
-                      <a href="">
-                        <CiHeart className="fs-5" /> Add to Wishlist
-                      </a>
-                    </div>
-                  </div>
-                  <div className="d-flexflex-column gap-10  my-3">
-                    <h3 className="product-heading">Shipping & Return :</h3>{" "}
-                    <p className="product-data">
-                      Free Shipping and return available on all orders <br />
-                      we ship all US domastic orders within
-                      <b>5-10 business days</b>
-                    </p>
-                  </div>
-                  <div className="d-flex gap-10 align-items-center my-3">
-                    <h3 className="product-heading mb-0">Copy product :</h3>{" "}
-                    <a
-                      href="javascript:void(0)"
-                      onClick={() =>
-                        copyToClipboard(
-                          "https://media.istockphoto.com/id/1371695315/photo/iphone-13-pro-sierra-blue.jpg?s=612x612&w=0&k=20&c=-0Mr9DdIRHFoLUozdltlHdkum0ChCNTGfLhxc-3oHmI="
-                        )
-                      }
-                    >
-                      Copy Product Link
-                    </a>
+                    <p className="mb-0">Based on 2 Reviews</p>
                   </div>
                 </div>
+
+                <div>
+                  <a className="text-dark text-decoration-underline" href="">
+                    Write a Review
+                  </a>
+                </div>
+              </div>
+              <div className="review-form py-4">
+                <h4>Write a Review</h4>
+                <div>
+                  <ReactStars
+                    count={5}
+                    size={24}
+                    value={4}
+                    edit={true}
+                    activeColor="#ffd700"
+                    onChange={(e) => {
+                      setStar(e);
+                    }}
+                  />
+                </div>
+                <div>
+                  <textarea
+                    name=""
+                    id=""
+                    className="w-100 form-control"
+                    cols="30"
+                    rows="4"
+                    placeholder="Comments"
+                    onChange={(e) => {
+                      setComment(e.target.value);
+                    }}
+                  ></textarea>
+                </div>
+                <div className="d-flex justify-content-end mt-3">
+                  <button
+                    onClick={addRatingToProduct}
+                    className="button border-0"
+                    type="button"
+                  >
+                    Submit Review
+                  </button>
+                </div>
+              </div>
+              <div className="reviews mt-4">
+                {productState &&
+                  productState.ratings?.map((item, index) => {
+                    return (
+                      <div key={index} className="review">
+                        <div className="d-flex gap-10 align-items-center">
+                          <ReactStars
+                            count={5}
+                            size={24}
+                            value={item?.star}
+                            edit={false}
+                            activeColor="#ffd700"
+                          />
+                        </div>
+                        <p className="mt-3">{item?.comment}</p>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="discription-wrapper py-5 home-wrapper-2">
-        <div className="container-xxl">
-          <div className="row">
-            <div className="col-12">
-              <div className="bg-white p-3">
-                <h4>Description</h4>
-                <p className="">
-                  Troper, broke the news of her demise with a Facebook post. “It
-                  is with profound sadness that I share the news of Susan
-                  Wojcicki passing. My beloved wife of 26 years and mother to
-                  our five children left us today after 2 years of living with
-                  non-small cell lung cancer. Susan was not just my best friend
-                  and partner in life, but a brilliant mind, a loving mother,
-                  and a dear friend to many. Her impact on our family and the
-                  world was immeasurable. We are heartbroken, but grateful for
-                  the time we had with her. Please keep our family in your
-                  thoughts as we navigate this difficult time,” he wrote, as
-                  quoted by Hindustan Times report.
-                </p>
-              </div>
-            </div>
+      </Container>
+      <Container class1="popular-wrapper py-5 home-wrapper-2">
+        <div className="row">
+          <div className="col-12">
+            <h3 className="section-heading">Our Popular Products</h3>
           </div>
         </div>
-      </div>
-      <section className="reviews-wrapper py-5 home-wrapper-2">
-        <div className="container-xxl">
-          <div className="row">
-            <div className="col-12">
-              <h3 id="review">Reviews</h3>
-              <div className="review-inner-wrapper">
-                <div className="reviews-head d-flex justify-content-between aling-items-end">
-                  <div>
-                    <h4 className="mb-2">Customer Reviews</h4>
-                    <div className="d-flex align-items-center gap-10">
-                      <ReactStars
-                        count={5}
-                        size={24}
-                        value={3}
-                        edit={true}
-                        activeColor="#ffd700"
-                      />
-                      <p className="mb-0">Based on 2 Reviews</p>
-                    </div>
-                  </div>
-                  {orderProduct && (
-                    <div>
-                      <a
-                        className="text-dark text-decoration-underline"
-                        href=""
-                      >
-                        Write a Review
-                      </a>
-                    </div>
-                  )}
-                </div>
-                <div className="review-form py-4">
-                  <h4>Write a Reviews</h4>
-                  <form action="" className="d-flex flex-column gap-15">
-                    <div>
-                      <ReactStars
-                        count={5}
-                        size={24}
-                        value={3}
-                        edit={false}
-                        activeColor="#ffd700"
-                      />
-                    </div>
-                    <div>
-                      <textarea
-                        name=""
-                        placeholder="Comments"
-                        id=""
-                        className="w-100 form-control"
-                        cols="38"
-                        rows="4"
-                      ></textarea>
-                    </div>
-                    <div className="d-flex justify-content-end">
-                      <button className="button boder-0">Submit Review</button>
-                    </div>
-                  </form>
-                </div>
-                <div className="reviews mt-4">
-                  <div className="review">
-                    <div className="d-flex gap-10 align-items-center">
-                      <h6 className="mb-0">Navdeep</h6>
-                      <ReactStars
-                        count={5}
-                        size={24}
-                        value={3}
-                        edit={false}
-                        activeColor="#ffd700"
-                      />
-                    </div>
-                    <p className="mt-3">
-                      and partner in life, but a brilliant mind, a loving
-                      mother, and a dear friend to many. Her impact on our
-                      family and the world was immeasurable. We are heartbroken,
-                      but grateful for the time we had with her. Please keep our
-                      family in your thoughts as we navigate this difficult
-                      time,” he wrote, as quoted by Hindustan Times report.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-4 md:grid-cols-4 gap-6">
+          {popularProduct &&
+            popularProduct?.map((product) => (
+              <SingleProductCard key={product.id} product={product} />
+            ))}
         </div>
-      </section>
-      <section className="popular-wrapper py-5 home-wrapper-2">
-        <div className="container-xxl">
-          <div className="row">
-            <div className="col-12">
-              <h3 className="section-heading">Our Popular Products</h3>
-            </div>
-          </div>
-          <div className="row">
-            <ProductCard />
-          </div>
-        </div>
-      </section>
-    </div>
+      </Container>
+    </>
   );
-}
+};
 
 export default SingleProduct;

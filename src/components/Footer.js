@@ -1,11 +1,10 @@
 import React from "react";
-import { BsSearch } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { IoLogoInstagram } from "react-icons/io5";
 import { FaYoutube } from "react-icons/fa";
 import { FaLinkedin } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa";
-import newsletter from "../images/newsletter.png";
+import newsletter from "../public/images/newsletter.png";
 
 function Footer() {
   return (
@@ -43,8 +42,9 @@ function Footer() {
               <h4 className="text-white mb-4">Contact Us</h4>
               <div className="text-white fs-6">
                 <address>
-                  Hno. 277 Near Vill chopal, <br /> Sonipat, Haryana <br />
-                  Pincode: 131103
+                  Hno. 80 Near Dayanand Marg, <br /> Rishikesh,
+                  Dehradun(Uttarakhand) <br />
+                  Pincode: 249201
                 </address>
                 <a
                   href="tel:+91 7060839220"
@@ -59,16 +59,16 @@ function Footer() {
                   ashishpanchal199@gmail.com
                 </a>
                 <div className="social-icons d-flex align-items-center gap-30 mt-4">
-                  <a href="" alt="social media">
+                  <a href="/" alt="social media">
                     <FaLinkedin className="text-white fs-4" />
                   </a>
-                  <a href="" alt="social media">
+                  <a href="/" alt="social media">
                     <IoLogoInstagram className="text-white fs-4" />
                   </a>
-                  <a href="" alt="social media">
+                  <a href="/" alt="social media">
                     <FaGithub className="text-white fs-4" />
                   </a>
-                  <a href="" alt="social media">
+                  <a href="/" alt="social media">
                     <FaYoutube className="text-white fs-4" />
                   </a>
                 </div>
@@ -100,9 +100,13 @@ function Footer() {
             <div className="col-3">
               <h4 className="text-white mb-4">Account</h4>
               <div className="footer-links d-flex flex-column">
-                <Link className="text-white py-2 mb-1">About Us</Link>
+                <Link to="/about" className="text-white py-2 mb-1">
+                  About Us
+                </Link>
                 <Link className="text-white py-2 mb-1">FAQ</Link>
-                <Link className="text-white py-2 mb-1">Contact</Link>
+                <Link to="/contact" className="text-white py-2 mb-1">
+                  Contact
+                </Link>
               </div>
             </div>
             <div className="col-2">
@@ -122,7 +126,7 @@ function Footer() {
           <div className="row">
             <div className="col-12">
               <p className="text-center mb-0 text-white">
-                &copy; {new Date().getFullYear()}; Powered by Developer
+                &copy; {new Date().getFullYear()}; Powered by Vishwakarma
               </p>
             </div>
           </div>

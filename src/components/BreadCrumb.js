@@ -3,15 +3,22 @@ import { Link } from "react-router-dom";
 
 function BreadCrumb({ title }) {
   return (
-    <div className="breadcrumb py-4">
+    <div className="">
       <div className="container-xxl">
-        <div className="row">
-          <div className="col-12 d-flex justify-content-center">
-            <p className="text-center mb-0">
-              <Link className="text-dark" to="/">
+        <div>
+          <div
+            style={{
+              backgroundImage: `url(${require("../images/about/breadcrunb-bg.webp")})`,
+
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <p className=" flex text-center justify-center text-xl p-40">
+              <Link className=" hover:text-[#266BF9]" to="/">
                 Home &nbsp;
               </Link>
-              /{title}
+              <div className=" text-[#266BF9]">/ {title}</div>
             </p>
           </div>
         </div>

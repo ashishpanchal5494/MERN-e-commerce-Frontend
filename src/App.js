@@ -20,6 +20,10 @@ import TermsAndCondition from "./pages/TermsAndCondition";
 import SingleProduct from "./pages/SingleProduct";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
+import { PrivateRoutes } from "./routing/PrivateRoutes";
+import { OpenRoutes } from "./routing/OpenRoutes";
+import Orders from "./pages/Orders";
+import Profile from "./pages/Profile";
 
 function App() {
   return (
@@ -33,6 +37,22 @@ function App() {
           <Route path="contact" Component={Contact} />
           <Route path="store" Component={OurStore} />
           <Route path="cart" Component={Cart} />
+          <Route
+            path="my-orders"
+            element={
+              <PrivateRoutes>
+                <Orders />
+              </PrivateRoutes>
+            }
+          />
+          <Route
+            path="my-profile"
+            element={
+              <PrivateRoutes>
+                <Profile />
+              </PrivateRoutes>
+            }
+          />
           <Route path="checkout" Component={Checkout} />
           <Route path="product/:id" Component={SingleProduct} />
           <Route path="compare" Component={CompareProduct} />
@@ -43,7 +63,7 @@ function App() {
           <Route path="refund-policy" Component={RefundPolicy} />
           <Route path="shipping-policy" Component={ShippingPolicy} />
           <Route path="terms-and-conditions" Component={TermsAndCondition} />
-          <Route path="reset-password" Component={ResetPassword} />
+          <Route path="reset-password/:token" element={<ResetPassword />} />
           <Route path="forget-password" Component={ForgetPassword} />
         </Route>
       </Routes>
