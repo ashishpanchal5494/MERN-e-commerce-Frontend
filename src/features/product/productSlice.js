@@ -44,6 +44,7 @@ export const addRating = createAsyncThunk(
     }
   }
 );
+
 const productState = {
   product: "",
   isError: false,

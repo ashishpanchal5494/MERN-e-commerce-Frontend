@@ -73,7 +73,7 @@ function Header() {
           <div className="row">
             <div className="col-6 ">
               <p className="text-[#CFD4DF] mb-0">
-                Free Shopping Over $100 & Free Returns
+                Free Shopping Over ₹500 & Free Returns
               </p>
             </div>
             <div className="col-6">
@@ -187,7 +187,7 @@ function Header() {
                       <span className="badge bg-white text-dark">
                         {cartState && cartState?.length ? cartState?.length : 0}
                       </span>
-                      <p className="mb-0">$ {total ? total : 0}</p>
+                      <p className="mb-0">₹ {total ? total : 0}</p>
                     </div>
                   </Link>
                 </div>

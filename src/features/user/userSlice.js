@@ -47,9 +47,16 @@ export const createAnOrder = createAsyncThunk(
   "user/cart/create-order",
   async (orderDetail, thunkAPI) => {
     try {
-      return await authService.createOrder(orderDetail);
+      const response = await authService.createOrder(orderDetail);
+      return response; // Return the serializable response data
     } catch (error) {
-      return thunkAPI.rejectWithValue(error);
+      // Extract only serializable properties from the error object
+      return thunkAPI.rejectWithValue({
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
     }
   }
 );
@@ -86,6 +93,18 @@ export const deleteCartProduct = createAsyncThunk(
     }
   }
 );
+
+export const emptyItemFromCart = createAsyncThunk(
+  "user/cart/empty",
+  async (thunkAPI) => {
+    try {
+      return await authService.emptyCart();
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  }
+);
+
 export const updateCartProduct = createAsyncThunk(
   "user/cart/product/update",
   async (cartDetail, thunkAPI) => {
@@ -233,6 +252,21 @@ export const authSlice = createSlice({
         state.cartProducts = action.payload;
       })
       .addCase(getUserCart.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.isSuccess = false;
+        state.message = action.error;
+      })
+      .addCase(emptyItemFromCart.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(emptyItemFromCart.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isError = false;
+        state.isSuccess = true;
+        state.emptyCart = action.payload;
+      })
+      .addCase(emptyItemFromCart.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.isSuccess = false;

@@ -54,13 +54,29 @@ const updateProductFromCart = async (cartDetail) => {
 };
 
 const createOrder = async (orderDetail) => {
-  const response = await axios.post(
-    `${base_url}user/cart/create-order`,
-    orderDetail,
-    config
-  );
-  if (response.data) {
+  try {
+    const response = await axios.post(
+      `${base_url}user/cart/create-order`,
+      orderDetail,
+      config
+    );
+
+    // Return response data if the request is successful
     return response.data;
+  } catch (error) {
+    console.error("Error creating order:", error);
+
+    // Handle specific error responses
+    if (error.response) {
+      // Server responded with a status outside the 2xx range
+      throw new Error(error.response.data.message || "Failed to create order");
+    } else if (error.request) {
+      // Request was sent but no response was received
+      throw new Error("No response received from the server");
+    } else {
+      // Something else caused the error
+      throw new Error("An error occurred while creating the order");
+    }
   }
 };
 
@@ -70,6 +86,14 @@ const getUserOrders = async () => {
     return response.data;
   }
 };
+
+const emptyCart = async () => {
+  const response = await axios.delete(`${base_url}user/empty-cart`, config); // Change GET to DELETE
+  if (response.data) {
+    return response.data;
+  }
+};
+
 const updateUser = async (data) => {
   const response = await axios.put(`${base_url}user/edit-user`, data, config);
   if (response.data) {
@@ -103,6 +127,7 @@ export const authService = {
   getUserWislist,
   addToCart,
   getCart,
+  emptyCart,
   removeProductFromCart,
   updateProductFromCart,
   createOrder,

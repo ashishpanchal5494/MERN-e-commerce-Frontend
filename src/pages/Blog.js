@@ -9,6 +9,7 @@ import { FaAngleRight } from "react-icons/fa6";
 import { IoSearch } from "react-icons/io5";
 import { SlCalender } from "react-icons/sl";
 import moment from "moment";
+import { Link } from "react-router-dom";
 
 function Blog() {
   const dispatch = useDispatch();
@@ -19,17 +20,14 @@ function Blog() {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [archives, setArchives] = useState([]);
-  const [selectedArchive, setSelectedArchive] = useState("");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const blogsPerPage = 4;
 
   // Fetch blogs on mount
   useEffect(() => {
     dispatch(getAllBlogs());
   }, [dispatch]);
-
-  const randomRecentPosts = () => {
-    const shuffled = [...blogState].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 4); // Get the top 4 random posts
-  };
 
   // Filter blogs based on search term
   useEffect(() => {
@@ -37,9 +35,10 @@ function Blog() {
       blogState.filter(
         (blog) =>
           blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          blog.description.toLowerCase().includes(searchTerm.toLowerCase())
+          blog.category.toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
+    setCurrentPage(1);
   }, [searchTerm, blogState]);
 
   // Extract categories and archives from blog data
@@ -61,15 +60,16 @@ function Blog() {
     setFilteredBlogs(
       blogState.filter((blog) => (category ? blog.category === category : true))
     );
+    setCurrentPage(1);
   };
 
   // Filter blogs by selected archive year
-  const handleArchiveChange = (archive) => {
-    setSelectedArchive(archive);
-    setFilteredBlogs(
-      blogState.filter((blog) => (archive ? blog.date.includes(archive) : true))
-    );
-  };
+
+  // Pagination calculations
+  const indexOfLastBlog = currentPage * blogsPerPage;
+  const indexOfFirstBlog = indexOfLastBlog - blogsPerPage;
+  const currentBlogs = filteredBlogs.slice(indexOfFirstBlog, indexOfLastBlog);
+  const totalPages = Math.ceil(filteredBlogs.length / blogsPerPage);
 
   return (
     <>
@@ -82,7 +82,7 @@ function Blog() {
             <div className="lg:w-2/3 md:w-full order-1 lg:order-last">
               <div className="flex flex-wrap">
                 <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
-                  {filteredBlogs.map((blog) => (
+                  {currentBlogs.map((blog) => (
                     <BlogCard blog={blog} key={blog.id} />
                   ))}
                 </div>
@@ -90,25 +90,44 @@ function Blog() {
                 {/* Pagination */}
                 <div className="pro-pagination-style text-center mt-8">
                   <div className="pages">
-                    <ul className=" ml-60 flex justify-center space-x-4">
-                      <li className="border-[2.5px] border-gray-300 p-3 rounded-xl">
-                        <div className="page-link">
-                          <FaAngleLeft size={20} />
-                        </div>
+                    <ul className="ml-60 flex justify-center space-x-4">
+                      <li
+                        className={`border-[2.5px] border-gray-300 p-3 rounded-xl ${
+                          currentPage === 1
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          currentPage > 1 && setCurrentPage(currentPage - 1)
+                        }
+                      >
+                        <FaAngleLeft size={20} />
                       </li>
-                      <li className="border-[2.5px] border-gray-300 py-3 px-4 rounded-xl">
-                        <div className="page-link active">1</div>
-                      </li>
-                      <li className="border-[2.5px] border-gray-300 py-3 px-4 rounded-xl">
-                        <div className="page-link">2</div>
-                      </li>
-                      <li className="border-[2.5px] border-gray-300 py-3 px-4 rounded-xl">
-                        <div className="page-link">3</div>
-                      </li>
-                      <li className="border-[2.5px] border-gray-300 p-3 rounded-xl">
-                        <div className="page-link ">
-                          <FaAngleRight size={20} />
-                        </div>
+                      {Array.from({ length: totalPages }, (_, index) => (
+                        <li
+                          key={index}
+                          className={`border-[2.5px] border-gray-300 py-3 px-4 rounded-xl ${
+                            currentPage === index + 1
+                              ? "bg-gray-300"
+                              : "cursor-pointer"
+                          }`}
+                          onClick={() => setCurrentPage(index + 1)}
+                        >
+                          {index + 1}
+                        </li>
+                      ))}
+                      <li
+                        className={`border-[2.5px] border-gray-300 p-3 rounded-xl ${
+                          currentPage === totalPages
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          currentPage < totalPages &&
+                          setCurrentPage(currentPage + 1)
+                        }
+                      >
+                        <FaAngleRight size={20} />
                       </li>
                     </ul>
                   </div>
@@ -144,23 +163,25 @@ function Blog() {
                     <div className="category-post">
                       <ul className="list-none text-lg flex gap-3 flex-col">
                         <li>
-                          <a
-                            href="#"
+                          <Link
                             onClick={() => handleCategoryChange("")}
                             className="text-gray-900"
                           >
                             All Categories
-                          </a>
+                          </Link>
                         </li>
-                        {categories.map((category, index) => (
+                        {categories.slice(0, 5).map((category, index) => (
                           <li key={index}>
-                            <a
-                              href="#"
+                            <Link
                               onClick={() => handleCategoryChange(category)}
-                              className="text-gray-900"
+                              className={`text-gray-900  hover:text-blue-500 ${
+                                selectedCategory === category
+                                  ? "text-blue-500"
+                                  : ""
+                              }`}
                             >
                               {category}
-                            </a>
+                            </Link>
                           </li>
                         ))}
                       </ul>
@@ -171,16 +192,20 @@ function Blog() {
                     <h3 className="sidebar-title text-xl font-semibold mb-4 mt-16 text-gray-700 border-b-[2.5px] pb-6 border-gray-300  ">
                       Recent Posts
                     </h3>
-                    {randomRecentPosts().map((post, index) => (
-                      <div key={index} className="recent-single-post flex mb-4">
+                    {blogState.slice(-4).map((post, index) => (
+                      <Link
+                        to={"/blog/" + post.id}
+                        key={index}
+                        className="recent-single-post flex mb-4"
+                      >
                         <div className="thumb-side mr-4">
-                          <a href="blog-single-left-sidebar.html">
+                          <div>
                             <img
                               src={post.images?.[0].url}
                               alt="Recent Post"
                               className="w-32 h-28 object-cover rounded"
                             />
-                          </a>
+                          </div>
                         </div>
                         <div className="media-side">
                           <span className="date text-lg text-gray-900 flex gap-2">
@@ -190,15 +215,12 @@ function Blog() {
                             )}
                           </span>
                           <h5 className="text-lg font-semibold">
-                            <a
-                              href="blog-single-left-sidebar.html"
-                              className="text-gray-900"
-                            >
-                              {post.title}
-                            </a>
+                            <div className="text-gray-900">
+                              {post.title.split(" ").slice(0, 2).join(" ")}
+                            </div>
                           </h5>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
 
@@ -209,15 +231,11 @@ function Blog() {
                     </h3>
                     <div className="category-post">
                       <ul className="list-none text-lg flex gap-3 flex-col">
-                        {archives.map((archive, index) => (
+                        {archives.slice(0, 3).map((archive, index) => (
                           <li key={index}>
-                            <a
-                              href="#"
-                              onClick={() => handleArchiveChange(archive)}
-                              className="text-gray-900"
-                            >
-                              {archive}
-                            </a>
+                            <Link className="text-gray-900 text-center">
+                              {archive.split("T")[0]}
+                            </Link>
                           </li>
                         ))}
                       </ul>

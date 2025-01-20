@@ -9,8 +9,6 @@ const SingleProductCard = ({ product }) => {
   const navigate = useNavigate();
   const { _id, isNew, images, hoverImage, category, title, price } = product;
 
-  console.log(product);
-
   return (
     <div>
       <div
@@ -50,7 +48,7 @@ const SingleProductCard = ({ product }) => {
             </div>
           </h5>
           <span className="price text-lg font-bold flex justify-center text-gray-500">
-            ${price}
+            ₹{price}
           </span>
         </div>
 

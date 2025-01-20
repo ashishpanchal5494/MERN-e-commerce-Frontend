@@ -12,6 +12,7 @@ import Hero from "../components/Hero";
 import SingleProductCard from "../components/SingleProductCard";
 import { getAllBlogs } from "../features/blog/blogSlice";
 import { getUserCart } from "../features/user/userSlice";
+import { Link } from "react-router-dom";
 
 function Home() {
   const [activeTab, setActiveTab] = useState("popular");
@@ -67,17 +68,16 @@ function Home() {
       id: 1,
       image: "/images/feature-image/1.webp",
       title: "Bluetooth Headphone",
-      oldPrice: "$48.50",
-      newPrice: "$38.50",
+      oldPrice: "₹4850",
+      newPrice: "₹3850",
       countdown: "2023/09/15",
-      link: "single-product.html",
     },
     {
       id: 2,
       image: "/images/feature-image/2.webp",
       title: "Ladies Smart Watch",
-      oldPrice: "$48.50",
-      newPrice: "$38.50",
+      oldPrice: "₹4900",
+      newPrice: "₹3999",
       countdown: "2024/09/15",
       details: [
         { label: "Predecessor", value: "None." },
@@ -85,14 +85,13 @@ function Home() {
         { label: "Cushioning", value: "High Energizing." },
         { label: "Total Weight", value: "300gm" },
       ],
-      link: "single-product.html",
     },
     {
       id: 3,
       image: "/images/feature-image/3.webp",
-      title: "Ladies Smart Watch",
-      oldPrice: "$48.50",
-      newPrice: "$38.50",
+      title: " Smart Phone",
+      oldPrice: "₹9850",
+      newPrice: "₹7850",
       countdown: "2023/09/15",
       details: [
         { label: "Predecessor", value: "None." },
@@ -100,7 +99,6 @@ function Home() {
         { label: "Cushioning", value: "High Energizing." },
         { label: "Total Weight", value: "300gm" },
       ],
-      link: "single-product.html",
     },
   ];
 
@@ -115,22 +113,19 @@ function Home() {
       id: 1,
       img: "/images/3.webp",
       title: "Smart Watch For Your Hand",
-      category: "From $29.00",
-      link: "shop-left-sidebar.html",
+      category: "From ₹1500",
     },
     {
       id: 2,
       img: "/images/4.webp",
       title: "Headphones",
-      category: "From $95.00",
-      link: "shop-left-sidebar.html",
+      category: "From ₹1300",
     },
     {
       id: 3,
       img: "/images/5.webp",
       title: "Smartphone",
-      category: "From $69.00",
-      link: "shop-left-sidebar.html",
+      category: "From ₹8450",
     },
   ];
 
@@ -163,6 +158,20 @@ function Home() {
     dispatch(getAllProducts());
   };
 
+  const getRandomProducts = (activeTab) => {
+    const shuffled = [...productState].sort(() => Math.random() - 0.5);
+    // Filter by the active tab and get up to 4 products
+    return shuffled
+      .filter((product) => product?.tags === activeTab)
+      .slice(0, 4);
+  };
+
+  const getRandomBlogs = () => {
+    const shuffled = [...blogState].sort(() => Math.random() - 0.5);
+    // Filter by the active tab and get up to 4 products
+    return shuffled.slice(0, 2);
+  };
+
   return (
     <div>
       <Hero />
@@ -183,12 +192,12 @@ function Home() {
                   <span className="relative top-80 right-[540px] text-3xl">
                     {banners[0].category}
                   </span>
-                  <a
-                    href={banners[0].link}
+                  <Link
+                    to="/store"
                     className="shop-link inline-block mt-4 relative top-[340px] right-[360px] text-blue-600"
                   >
                     <HiArrowCircleRight size={60} />
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -208,12 +217,12 @@ function Home() {
                     <span className="relative right-[570px] bottom-10 text-3xl">
                       {banner.category}
                     </span>
-                    <a
-                      href={banner.link}
+                    <Link
+                      to="/store"
                       className="shop-link inline-block mt-4 relative right-[700px] top-10 text-blue-600"
                     >
                       <HiArrowCircleRight size={60} />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -248,9 +257,8 @@ function Home() {
       <div className="shop-category-area py-12">
         <div className="container mx-auto">
           <div className="grid grid-cols-4 md:grid-cols-4 gap-6">
-            {productState &&
-              productState
-                ?.filter((product) => product.tags === activeTab)
+            {getRandomProducts &&
+              getRandomProducts(activeTab) // Call the function with the active tab
                 ?.map((product) => (
                   <SingleProductCard key={product.id} product={product} />
                 ))}
@@ -273,12 +281,12 @@ function Home() {
                   With Smart Devices
                 </div>
               </h2>
-              <a
-                href="shop-left-sidebar.html"
+              <Link
+                to="/store"
                 className="btn border-2 border-white hover:bg-blue-700 hover:border-blue-700  text-white text-lg uppercase py-3 px-6 rounded-2xl"
               >
                 Shop All Devices
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -298,12 +306,12 @@ function Home() {
             <div className="single-feature-content border-2 border-gray-300 rounded-2xl h-[920px] ">
               <div className="top-content text-center mt-4 top-10 relative">
                 <h4 className="text-xl font-semibold">
-                  <a
-                    href={featuredProducts[0].link}
+                  <Link
+                    to="/store"
                     className="text-black hover:text-blue-500 text-4xl mb-4"
                   >
                     {featuredProducts[0].title}
-                  </a>
+                  </Link>
                 </h4>
                 <div className="price text-4xl text-gray-700">
                   <del className="text-gray-400 mr-2">
@@ -345,12 +353,12 @@ function Home() {
                     SEC
                   </div>
                 </div>
-                <a
-                  href="single-product-variable.html"
+                <Link
+                  to="/store"
                   className="btn btn-primary bg-blue-600 text-white font-bold text-xl py-3 px-16 rounded-2xl "
                 >
                   Shop Now
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -387,12 +395,9 @@ function Home() {
                       </div>
                       <div className="prize-content">
                         <h5 className="text-lg font-bold">
-                          <a
-                            href={product.link}
-                            className=" text-black py-2 hover:text-blue-500"
-                          >
+                          <div className=" text-black py-2 hover:text-blue-500">
                             {product.title}
-                          </a>
+                          </div>
                         </h5>
                         <div className="price text-xl py-3 text-gray-700">
                           <span className="old text-gray-400 line-through mr-2">
@@ -521,9 +526,8 @@ function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {blogState.map((blog) => (
-              <BlogCard blog={blog} />
-            ))}
+            {getRandomBlogs &&
+              getRandomBlogs().map((blog) => <BlogCard blog={blog} />)}
           </div>
         </div>
       </div>

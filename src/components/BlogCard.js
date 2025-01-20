@@ -38,7 +38,7 @@ function BlogCard({ blog }) {
         </div>
         <h5 className="text-2xl font-semibold p-2 mb-3">
           <a href={blog.link} className="hover:text-blue-500 transition">
-            {blog.title}
+            {blog.title.split(" ").slice(0, 2).join(" ")}...
           </a>
         </h5>
         <p className="text-gray-600 text-lg px-2 mb-4">

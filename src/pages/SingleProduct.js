@@ -22,26 +22,41 @@ const SingleProduct = () => {
   const [color, setColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [alreadyAdded, setAlreadyAdded] = useState(false);
+  const [activeImage, setActiveImage] = useState("");
+
+  const [selectedColor, setSelectedColor] = useState(null);
+
   const location = useLocation();
   const navigate = useNavigate();
   const getProductId = location.pathname.split("/")[2];
+  console.log(getProductId);
   const dispatch = useDispatch();
   const productState = useSelector((state) => state?.product?.singleproduct);
+  console.log(productState?.totalrating);
   const productsState = useSelector((state) => state?.product?.product);
   const cartState = useSelector((state) => state?.auth?.cartProducts);
+  console.log(cartState);
 
   useEffect(() => {
     dispatch(getAProduct(getProductId));
     dispatch(getUserCart());
     dispatch(getAllProducts());
   }, [getProductId, dispatch]);
+
   useEffect(() => {
-    for (let index = 0; index < cartState?.length; index++) {
-      if (getProductId === cartState[index]?.productId?._id) {
-        setAlreadyAdded(true);
-      }
+    const isProductInCart = cartState.some(
+      (cartItem) =>
+        cartItem.color._id === selectedColor &&
+        cartItem.productId._id === getProductId
+    );
+    setAlreadyAdded(isProductInCart);
+  }, [cartState, getProductId, selectedColor]);
+
+  useEffect(() => {
+    if (productState?.images?.length > 0) {
+      setActiveImage(productState.images[0].url); // Set the first image as default
     }
-  }, [cartState, getProductId]);
+  }, [productState]);
 
   const uploadCart = () => {
     if (color === null) {
@@ -52,7 +67,7 @@ const SingleProduct = () => {
         addProdToCart({
           productId: productState?._id,
           quantity,
-          color,
+          color: selectedColor,
           price: productState?.price,
         })
       );
@@ -64,10 +79,9 @@ const SingleProduct = () => {
     width: 594,
     height: 600,
     zoomWidth: 600,
-
-    img: productState?.images[0]?.url
-      ? productState?.images[0]?.url
-      : "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg",
+    img:
+      activeImage ||
+      "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg", // Use active image
   };
 
   const copyToClipboard = (text) => {
@@ -94,6 +108,7 @@ const SingleProduct = () => {
 
   const [star, setStar] = useState(null);
   const [comment, setComment] = useState(null);
+
   const addRatingToProduct = () => {
     if (star === null) {
       toast.error("Please add star rating");
@@ -102,9 +117,9 @@ const SingleProduct = () => {
       toast.error("Please Write Review About the Product.");
       return false;
     } else {
-      dispatch(
-        addRating({ star: star, comment: comment, prodId: getProductId })
-      );
+      const data = { star: star, comment: comment, prodId: getProductId };
+      console.log(data);
+      dispatch(addRating(data));
       setTimeout(() => {
         dispatch(getAProduct(getProductId));
       }, 100);
@@ -125,13 +140,26 @@ const SingleProduct = () => {
               </div>
             </div>
             <div className="other-product-images d-flex flex-wrap gap-15">
-              {productState?.images.map((item, index) => {
-                return (
-                  <div key={index}>
-                    <img src={item?.url} className="img-fluid" alt="" />
-                  </div>
-                );
-              })}
+              {productState?.images.map((item, index) => (
+                <div
+                  key={index}
+                  className={`thumbnail ${
+                    activeImage === item.url ? "active-thumbnail" : ""
+                  }`}
+                  onClick={() => setActiveImage(item.url)} // Set active image
+                  style={{
+                    border:
+                      activeImage === item.url ? "2px solid #000" : "none",
+                  }}
+                >
+                  <img
+                    src={item?.url}
+                    className="img-fluid"
+                    alt={`Product Thumbnail ${index + 1}`}
+                    style={{ cursor: "pointer" }}
+                  />
+                </div>
+              ))}
             </div>
           </div>
           <div className="col-6">
@@ -140,12 +168,12 @@ const SingleProduct = () => {
                 <h3 className="title">{productState?.title}</h3>
               </div>
               <div className="border-bottom py-3">
-                <p className="price">$ {productState?.price}</p>
+                <p className="price">₹ {productState?.price}</p>
                 <div className="d-flex align-items-center gap-10">
                   <ReactStars
                     count={5}
                     size={24}
-                    value={productState?.totalratings}
+                    value={productState?.totalrating}
                     edit={false}
                     activeColor="#ffd700"
                   />
@@ -176,34 +204,17 @@ const SingleProduct = () => {
                   <h3 className="product-heading">Availablity :</h3>
                   <p className="product-data">In Stock</p>
                 </div>
-                {/*     <div className="d-flex gap-10 flex-column mt-2 mb-3">
-                  <h3 className="product-heading">Size :</h3>
-                  <div className="d-flex flex-wrap gap-15">
-                    <span className="badge border border-1 bg-white text-dark border-secondary">
-                      S
-                    </span>
-                    <span className="badge border border-1 bg-white text-dark border-secondary">
-                      M
-                    </span>
-                    <span className="badge border border-1 bg-white text-dark border-secondary">
-                      XL
-                    </span>
-                    <span className="badge border border-1 bg-white text-dark border-secondary">
-                      XXL
-                    </span>
-                  </div>
-                </div> */}
-                {alreadyAdded === false && (
-                  <>
-                    <div className="d-flex gap-10 flex-column mt-2 mb-3">
-                      <h3 className="product-heading">Color :</h3>
-                      <Color
-                        setColor={setColor}
-                        colorData={productState?.color}
-                      />
-                    </div>
-                  </>
-                )}
+
+                <div className="d-flex gap-10 flex-column mt-2 mb-3">
+                  <h3 className="product-heading">Color :</h3>
+                  <Color
+                    setColor={setColor}
+                    colorData={productState?.color}
+                    selectedColor={selectedColor}
+                    setSelectedColor={setSelectedColor}
+                  />
+                </div>
+
                 <div className="d-flex align-items-center gap-15 flex-row mt-2 mb-3">
                   {alreadyAdded === false && (
                     <>
@@ -306,7 +317,7 @@ const SingleProduct = () => {
                     <ReactStars
                       count={5}
                       size={24}
-                      value={4}
+                      value={productState?.totalrating}
                       edit={false}
                       activeColor="#ffd700"
                     />
@@ -388,9 +399,11 @@ const SingleProduct = () => {
         </div>
         <div className="grid grid-cols-4 md:grid-cols-4 gap-6">
           {popularProduct &&
-            popularProduct?.map((product) => (
-              <SingleProductCard key={product.id} product={product} />
-            ))}
+            popularProduct
+              ?.slice(0, 4)
+              .map((product) => (
+                <SingleProductCard key={product.id} product={product} />
+              ))}
         </div>
       </Container>
     </>
