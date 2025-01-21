@@ -44,7 +44,7 @@ const SingleProduct = () => {
   }, [getProductId, dispatch]);
 
   useEffect(() => {
-    const isProductInCart = cartState.some(
+    const isProductInCart = cartState?.some(
       (cartItem) =>
         cartItem.color._id === selectedColor &&
         cartItem.productId._id === getProductId
