@@ -1,22 +1,30 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
-
+import { Link, useNavigate } from "react-router-dom";
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import * as Yup from "yup";
 import { registerUser } from "../features/user/userSlice";
 
 const userSchema = Yup.object().shape({
-  firstname: Yup.string().required("First name is required"),
-  lastname: Yup.string().required("Last name is required"),
-  email: Yup.string().email().required("Email is required"),
-  mobile: Yup.number().required("Mobile is required"),
-  password: Yup.string().required("Password is required"),
+  firstname: Yup.string().required("First name is required."),
+  lastname: Yup.string().required("Last name is required."),
+  email: Yup.string()
+    .email("Enter a valid email address.")
+    .required("Email is required."),
+  mobile: Yup.string()
+    .matches(/^\d{10}$/, "Enter a valid 10-digit mobile number.")
+    .required("Mobile number is required."),
+  password: Yup.string()
+    .min(6, "Password must be at least 6 characters.")
+    .required("Password is required."),
 });
 
 function Signup() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const formik = useFormik({
     initialValues: {
@@ -27,16 +35,24 @@ function Signup() {
       password: "",
     },
     validationSchema: userSchema,
-    onSubmit: (values) => {
-      dispatch(registerUser(values));
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        await dispatch(registerUser(values)).unwrap();
+        formik.resetForm();
+        window.location.reload();
+      } catch (error) {
+        console.error("Signup failed:", error.message);
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 
   return (
     <div>
-      <Meta title={"Signup"} />
+      <Meta title="Signup" />
       <BreadCrumb title="Signup" />
-      <div className="login-wrapper bg-white py-5 home-wrapper-2">
+      <div className="signup-wrapper bg-white py-5 home-wrapper-2">
         <div className="row">
           <div className="col-12">
             <div className="auth-card shadow-2xl">
@@ -44,97 +60,58 @@ function Signup() {
                 Signup
               </h3>
               <form
-                action=""
                 className="d-flex flex-column gap-15"
                 onSubmit={formik.handleSubmit}
               >
-                <div className="border-1 border-gray-200 mt-10">
-                  <input
-                    type="text"
-                    name="firstname"
-                    placeholder="First Name"
-                    className="form-control"
-                    onChange={formik.handleChange("firstname")}
-                    onBlur={formik.handleBlur("firstname")}
-                    value={formik.values.firstname}
-                  />
-                </div>
-                <div className="error text-sm text-red-600">
-                  {formik.errors.firstname && formik.touched.firstname ? (
-                    <div>{formik.errors.firstname}</div>
-                  ) : null}
-                </div>
-                <div className="border-1 border-gray-200 mt-2">
-                  <input
-                    type="text"
-                    name="lastname"
-                    placeholder="Last Name"
-                    className="form-control"
-                    onChange={formik.handleChange("lastname")}
-                    onBlur={formik.handleBlur("lastname")}
-                    value={formik.values.lastname}
-                  />
-                </div>
-                <div className="error text-sm text-red-600">
-                  {formik.errors.lastname && formik.touched.lastname ? (
-                    <div>{formik.errors.lastname}</div>
-                  ) : null}
-                </div>
-                <div className="border-1 border-gray-200 mt-2">
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    className="form-control"
-                    onChange={formik.handleChange("email")}
-                    onBlur={formik.handleBlur("email")}
-                    value={formik.values.email}
-                  />
-                </div>
-                <div className="error text-sm text-red-600">
-                  {formik.errors.email && formik.touched.email ? (
-                    <div>{formik.errors.email}</div>
-                  ) : null}
-                </div>
-                <div className="border-1 border-gray-200 mt-2">
-                  <input
-                    type="tel"
-                    name="mobile"
-                    placeholder="Mobile Number"
-                    className="form-control"
-                    onChange={formik.handleChange("mobile")}
-                    onBlur={formik.handleBlur("mobile")}
-                    value={formik.values.mobile}
-                  />
-                </div>
-                <div className="error text-sm text-red-600">
-                  {formik.errors.mobile && formik.touched.mobile ? (
-                    <div>{formik.errors.mobile}</div>
-                  ) : null}
-                </div>
-                <div className="border-1 border-gray-200 mt-2">
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    className="form-control"
-                    onChange={formik.handleChange("password")}
-                    onBlur={formik.handleBlur("password")}
-                    value={formik.values.password}
-                  />
-                </div>
-                <div className="error text-sm text-red-600">
-                  {formik.errors.password && formik.touched.password ? (
-                    <div>{formik.errors.password}</div>
-                  ) : null}
-                </div>
-                <div>
-                  {/* <Link to="/forget-password">Forget Password</Link> */}
-                  <div className="d-flex justify-content-center gap-15 align-items-center">
-                    <button type="submit" className="button border-0">
-                      Sign Up
-                    </button>
+                {[
+                  {
+                    name: "firstname",
+                    type: "text",
+                    placeholder: "First Name",
+                  },
+                  { name: "lastname", type: "text", placeholder: "Last Name" },
+                  { name: "email", type: "email", placeholder: "Email" },
+                  { name: "mobile", type: "tel", placeholder: "Mobile Number" },
+                  {
+                    name: "password",
+                    type: "password",
+                    placeholder: "Password",
+                  },
+                ].map((field, index) => (
+                  <div key={index} className="form-group">
+                    <input
+                      {...field}
+                      aria-label={field.placeholder}
+                      className="form-control border-1 border-gray-200 mt-2"
+                      style={{
+                        border: "2px solid #ccc",
+                        borderRadius: "5px", // Optional
+                        padding: "10px", // Optional
+                      }}
+                      onChange={formik.handleChange(field.name)}
+                      onBlur={formik.handleBlur(field.name)}
+                      value={formik.values[field.name]}
+                    />
+                    {formik.touched[field.name] &&
+                      formik.errors[field.name] && (
+                        <div className="error text-sm text-red-600 mt-1">
+                          {formik.errors[field.name]}
+                        </div>
+                      )}
                   </div>
+                ))}
+                <div className="d-flex justify-content-center gap-15 align-items-center mt-4">
+                  <Link to="/login" className="mr-28">
+                    <HiOutlineArrowNarrowLeft size={50} />
+                    SingUp
+                  </Link>
+                  <button
+                    type="submit"
+                    className="button border-0 mr-48"
+                    disabled={formik.isSubmitting}
+                  >
+                    {formik.isSubmitting ? "Signing Up..." : "Sign Up"}
+                  </button>
                 </div>
               </form>
             </div>

@@ -13,6 +13,7 @@ import SingleProductCard from "../components/SingleProductCard";
 import { getAllBlogs } from "../features/blog/blogSlice";
 import { getUserCart } from "../features/user/userSlice";
 import { Link } from "react-router-dom";
+import { Token } from "react-bootstrap-typeahead";
 
 function Home() {
   const [activeTab, setActiveTab] = useState("popular");
@@ -130,16 +131,15 @@ function Home() {
   ];
 
   const blogState = useSelector((state) => state?.blog?.blogs);
-  console.log(blogState);
 
   const productState = useSelector((state) => state?.product?.product);
-  console.log(productState);
 
   const dispatch = useDispatch();
 
   const authState = useSelector((state) => state?.auth);
 
   useEffect(() => {
+    Token = 
     if (authState?.user) {
       dispatch(getUserCart());
     }

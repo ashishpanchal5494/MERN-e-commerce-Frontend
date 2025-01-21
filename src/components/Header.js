@@ -16,15 +16,16 @@ function Header() {
   const dispatch = useDispatch();
   const cartState = useSelector((state) => state?.auth?.cartProducts);
   const authState = useSelector((state) => state?.auth);
+
   const productState = useSelector((state) => state.product.product);
   const [searchQuery, setSearchQuery] = useState("");
   const [productOpt, setProductOpt] = useState([]);
-
+  const token = localStorage.getItem("customer");
   const navigate = useNavigate();
   const [total, setTotal] = useState(null);
 
   useEffect(() => {
-    if (authState?.user) {
+    if (token) {
       dispatch(getUserCart());
     }
   }, [dispatch, authState?.user]);
@@ -103,15 +104,15 @@ function Header() {
                 </a>
                 <FaUser size={20} color="#266BF9" />
                 <Link
-                  to={authState?.user === null ? "/login" : "/my-profile"}
+                  to={token ? "/my-profile" : "/login"}
                   className="text-[#CFD4DF] capitalize"
                 >
-                  {authState?.user === null ? (
+                  {token ? (
+                    <p className="mb-0">Welcome {authState?.user?.firstname}</p>
+                  ) : (
                     <p className="mb-0">
                       Log in <br /> My Account
                     </p>
-                  ) : (
-                    <p className="mb-0">Welcome {authState?.user?.firstname}</p>
                   )}
                 </Link>
               </div>
