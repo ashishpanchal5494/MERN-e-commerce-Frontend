@@ -28,7 +28,7 @@ function Header() {
     if (token) {
       dispatch(getUserCart());
     }
-  }, [dispatch, authState?.user]);
+  }, [dispatch, token]);
 
   useEffect(() => {
     if (cartState && cartState.length) {

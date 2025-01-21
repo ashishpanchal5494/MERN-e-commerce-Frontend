@@ -13,10 +13,10 @@ import SingleProductCard from "../components/SingleProductCard";
 import { getAllBlogs } from "../features/blog/blogSlice";
 import { getUserCart } from "../features/user/userSlice";
 import { Link } from "react-router-dom";
-import { Token } from "react-bootstrap-typeahead";
 
 function Home() {
   const [activeTab, setActiveTab] = useState("popular");
+  const token = localStorage.getItem("customer");
 
   const brands = [
     { id: 1, image: "/images/brand/brand-01.png", alt: "Brand 1" },
@@ -136,27 +136,16 @@ function Home() {
 
   const dispatch = useDispatch();
 
-  const authState = useSelector((state) => state?.auth);
-
   useEffect(() => {
-    Token = 
-    if (authState?.user) {
+    if (token) {
       dispatch(getUserCart());
     }
-  }, [dispatch, authState?.user]);
+  }, [dispatch, token]);
 
   useEffect(() => {
-    getblogs();
-    getallProducts();
-  }, []);
-
-  const getblogs = () => {
     dispatch(getAllBlogs());
-  };
-
-  const getallProducts = () => {
     dispatch(getAllProducts());
-  };
+  }, [dispatch]);
 
   const getRandomProducts = (activeTab) => {
     const shuffled = [...productState].sort(() => Math.random() - 0.5);
