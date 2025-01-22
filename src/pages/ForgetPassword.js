@@ -51,6 +51,11 @@ const Forgotpassword = () => {
                   onChange={formik.handleChange("email")}
                   onBlur={formik.handleBlur("email")}
                   value={formik.values.email}
+                  style={{
+                    border: "1px solid #ccc",
+                    borderRadius: "1px", // Optional
+                    padding: "10px", // Optional
+                  }}
                 />
                 <div className="error text-center">
                   {formik.touched.email && formik.errors.email}

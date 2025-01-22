@@ -1,8 +1,8 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
-import { Link } from "react-router-dom";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
+
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import * as Yup from "yup";
@@ -23,6 +23,7 @@ const userSchema = Yup.object().shape({
 });
 
 function Signup() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const formik = useFormik({
@@ -38,7 +39,7 @@ function Signup() {
       try {
         await dispatch(registerUser(values)).unwrap();
         formik.resetForm();
-        window.location.reload();
+        navigate("/login");
       } catch (error) {
         console.error("Signup failed:", error.message);
       } finally {
@@ -59,7 +60,7 @@ function Signup() {
                 Signup
               </h3>
               <form
-                className="d-flex flex-column gap-15"
+                className="d-flex flex-column gap-8"
                 onSubmit={formik.handleSubmit}
               >
                 {[
@@ -83,8 +84,8 @@ function Signup() {
                       aria-label={field.placeholder}
                       className="form-control border-1 border-gray-200 mt-2"
                       style={{
-                        border: "2px solid #ccc",
-                        borderRadius: "5px", // Optional
+                        border: "1px solid #ccc",
+                        borderRadius: "1px", // Optional
                         padding: "10px", // Optional
                       }}
                       onChange={formik.handleChange(field.name)}
@@ -100,13 +101,9 @@ function Signup() {
                   </div>
                 ))}
                 <div className="d-flex justify-content-center gap-15 align-items-center mt-4">
-                  <Link to="/login" className="mr-28">
-                    <HiOutlineArrowNarrowLeft size={50} />
-                    SingUp
-                  </Link>
                   <button
                     type="submit"
-                    className="button border-0 mr-48"
+                    className="button text-white border-0 "
                     disabled={formik.isSubmitting}
                   >
                     {formik.isSubmitting ? "Signing Up..." : "Sign Up"}

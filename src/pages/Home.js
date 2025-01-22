@@ -139,6 +139,7 @@ function Home() {
   useEffect(() => {
     if (token) {
       dispatch(getUserCart());
+      window.scrollTo(0, 0);
     }
   }, [dispatch, token]);
 

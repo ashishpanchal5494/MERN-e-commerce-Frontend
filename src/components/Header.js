@@ -62,11 +62,6 @@ function Header() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    window.location.reload();
-  };
-
   return (
     <div>
       <header className="header-top-strip py-3">
@@ -212,15 +207,7 @@ function Header() {
                         <NavLink to="/blogs">Blogs</NavLink>
                         <NavLink to="/about">About</NavLink>
                         <NavLink to="contact">Contact</NavLink>
-                        <NavLink to="my-orders">Orders</NavLink>
                       </div>
-                      <button
-                        onClick={handleLogout}
-                        className=" text-white text-uppercase"
-                        type="button"
-                      >
-                        Logout
-                      </button>
                     </div>
                   </div>
                 </div>

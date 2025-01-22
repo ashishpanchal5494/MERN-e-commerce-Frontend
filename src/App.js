@@ -21,11 +21,13 @@ import SingleProduct from "./pages/SingleProduct";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import { PrivateRoutes } from "./routing/PrivateRoutes";
-import { OpenRoutes } from "./routing/OpenRoutes";
-import Orders from "./pages/Orders";
-import Profile from "./pages/Profile";
+import AccountDashboard from "./pages/AccountDashboard";
+import Thankyou from "./pages/Thankyou";
+import useScrollToTop from "./components/useScrollToTop";
 
 function App() {
+  useScrollToTop();
+
   return (
     <div className="App">
       <Routes>
@@ -37,19 +39,12 @@ function App() {
           <Route path="contact" Component={Contact} />
           <Route path="store" Component={OurStore} />
           <Route path="cart" Component={Cart} />
-          <Route
-            path="my-orders"
-            element={
-              <PrivateRoutes>
-                <Orders />
-              </PrivateRoutes>
-            }
-          />
+          <Route path="thankyou" Component={Thankyou} />
           <Route
             path="my-profile"
             element={
               <PrivateRoutes>
-                <Profile />
+                <AccountDashboard />
               </PrivateRoutes>
             }
           />

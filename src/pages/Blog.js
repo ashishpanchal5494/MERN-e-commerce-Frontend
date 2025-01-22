@@ -91,7 +91,8 @@ function Blog() {
                 <div className="pro-pagination-style text-center mt-8">
                   <div className="pages">
                     <ul className="ml-60 flex justify-center space-x-4">
-                      <li
+                      <a
+                        href="#"
                         className={`border-[2.5px] border-gray-300 p-3 rounded-xl ${
                           currentPage === 1
                             ? "opacity-50 cursor-not-allowed"
@@ -102,9 +103,10 @@ function Blog() {
                         }
                       >
                         <FaAngleLeft size={20} />
-                      </li>
+                      </a>
                       {Array.from({ length: totalPages }, (_, index) => (
-                        <li
+                        <a
+                          href="#"
                           key={index}
                           className={`border-[2.5px] border-gray-300 py-3 px-4 rounded-xl ${
                             currentPage === index + 1
@@ -114,9 +116,10 @@ function Blog() {
                           onClick={() => setCurrentPage(index + 1)}
                         >
                           {index + 1}
-                        </li>
+                        </a>
                       ))}
-                      <li
+                      <a
+                        href="#"
                         className={`border-[2.5px] border-gray-300 p-3 rounded-xl ${
                           currentPage === totalPages
                             ? "opacity-50 cursor-not-allowed"
@@ -128,7 +131,7 @@ function Blog() {
                         }
                       >
                         <FaAngleRight size={20} />
-                      </li>
+                      </a>
                     </ul>
                   </div>
                 </div>

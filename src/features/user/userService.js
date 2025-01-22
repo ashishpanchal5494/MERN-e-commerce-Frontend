@@ -20,6 +20,28 @@ const getUserWislist = async () => {
     return response.data;
   }
 };
+
+const addToWislist = async (productId) => {
+  const response = await axios.post(
+    `${base_url}user/addwishlist`,
+    { productId }, // Wrap the ID in an object
+    config
+  );
+  if (response.data) {
+    return response.data;
+  }
+};
+
+const deleteFromWishlist = async (productId) => {
+  const response = await axios.delete(`${base_url}user/removewishlist`, {
+    data: { productId }, // Send productId in the body
+    ...config, // Include headers for authentication
+  });
+  if (response.data) {
+    return response.data;
+  }
+};
+
 const addToCart = async (cartData) => {
   const response = await axios.post(`${base_url}user/cart`, cartData, config);
   if (response.data) {
@@ -134,4 +156,6 @@ export const authService = {
   updateUser,
   forgotPassToken,
   resetPass,
+  addToWislist,
+  deleteFromWishlist,
 };

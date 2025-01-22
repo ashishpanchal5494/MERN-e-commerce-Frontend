@@ -19,12 +19,23 @@ function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const authState = useSelector((state) => state.auth);
+  console.log(authState);
   const { user, isSuccess, isLoading } = authState;
 
   const formik = useFormik({
     initialValues: { email: "", password: "" },
     validationSchema: schema,
-    onSubmit: (values) => dispatch(loginUser(values)),
+    onSubmit: async (values, { setSubmitting }) => {
+      try {
+        await dispatch(loginUser(values)).unwrap();
+        formik.resetForm();
+        navigate("/");
+      } catch (error) {
+        console.error("Login failed:", error.message);
+      } finally {
+        setSubmitting(false);
+      }
+    },
   });
 
   useEffect(() => {
@@ -33,7 +44,6 @@ function Login() {
         dispatch(getUserCart());
         window.scrollTo(0, 0);
       }
-      navigate("/");
     }
   }, [isSuccess, user, navigate, dispatch]);
 
@@ -63,8 +73,8 @@ function Login() {
                     placeholder="Email"
                     className="form-control  "
                     style={{
-                      border: "2px solid #ccc",
-                      borderRadius: "5px", // Optional
+                      border: "1px solid #ccc",
+                      borderRadius: "1px",
                       padding: "10px", // Optional
                     }}
                     {...formik.getFieldProps("email")}
@@ -77,8 +87,8 @@ function Login() {
                     placeholder="Password"
                     className="form-control"
                     style={{
-                      border: "2px solid #ccc",
-                      borderRadius: "5px", // Optional
+                      border: "1px solid #ccc",
+                      borderRadius: "1px", // Optional
                       padding: "10px", // Optional
                     }}
                     {...formik.getFieldProps("password")}
@@ -89,13 +99,13 @@ function Login() {
                   <Link to="/forget-password">Forget Password?</Link>
                   <div className="d-flex justify-content-center gap-15 align-items-center">
                     <button
-                      className="button border-0"
+                      className="button signup border-0"
                       type="submit"
                       disabled={isLoading}
                     >
                       {isLoading ? "Logging in..." : "Login"}
                     </button>
-                    <Link to="/signup" className="button signup">
+                    <Link to="/signup" className="button text-white">
                       Sign Up
                     </Link>
                   </div>

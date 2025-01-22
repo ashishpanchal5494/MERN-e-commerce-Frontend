@@ -4,6 +4,9 @@ import { FaPlayCircle } from "react-icons/fa";
 import team1 from "../images/team/1.webp";
 import team2 from "../images/team/2.webp";
 import team3 from "../images/team/3.webp";
+import icon1 from "../images/icons/1.png";
+import icon2 from "../images/icons/2.png";
+import icon3 from "../images/icons/3.png";
 import { Swiper, SwiperSlide } from "swiper/react";
 import Meta from "../components/Meta";
 import { Navigation } from "swiper/modules";
@@ -133,33 +136,35 @@ const About = () => {
         </div>
       </div>
 
-      <div className="py-24">
-        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="py-24 border-2 border-gray-300 m-4 rounded-2xl">
+        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 ">
           {[
             {
               title: "Free Shipping",
               subtitle: "Capped at $39 per order",
-              icon: "1.png",
+              icon: icon1,
             },
             {
               title: "Card Payments",
               subtitle: "12 Months Installments",
-              icon: "2.png",
+              icon: icon2,
             },
             {
               title: "Easy Returns",
               subtitle: "Shop With Confidence",
-              icon: "3.png",
+              icon: icon3,
             },
           ].map((feature, index) => (
-            <div key={index} className="text-center">
+            <div key={index} className="text-center flex ">
               <img
-                src={`assets/images/icons/${feature.icon}`}
+                src={feature.icon}
                 alt={feature.title}
-                className="mx-auto mb-4"
+                className="mx-4 mb-4 bg-blue-600 p-4 rounded-full"
               />
-              <h4 className="text-xl font-semibold">{feature.title}</h4>
-              <span className="text-gray-500">{feature.subtitle}</span>
+              <div className="mt-2">
+                <h4 className="text-2xl font-semibold">{feature.title}</h4>
+                <span className=" text-black my-4">{feature.subtitle}</span>
+              </div>
             </div>
           ))}
         </div>

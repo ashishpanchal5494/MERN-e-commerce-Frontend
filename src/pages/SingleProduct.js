@@ -2,12 +2,18 @@ import React, { useEffect, useState } from "react";
 import ReactStars from "react-rating-stars-component";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
-import ReactImageZoom from "react-image-zoom";
 import Color from "../components/Color";
-import { TbGitCompare } from "react-icons/tb";
-import { AiOutlineHeart } from "react-icons/ai";
-import { useLocation, useNavigate } from "react-router-dom";
+import { CiHeart } from "react-icons/ci";
+import commentIcon from "../images/testimonial/1.webp";
+import { SlRefresh } from "react-icons/sl";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Container from "../components/Container";
+
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/thumbs";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Thumbs } from "swiper/modules";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addRating,
@@ -15,7 +21,11 @@ import {
   getAllProducts,
 } from "../features/product/productSlice";
 import { toast } from "react-toastify";
-import { addProdToCart, getUserCart } from "../features/user/userSlice";
+import {
+  addProdToCart,
+  addUserWishlist,
+  getUserCart,
+} from "../features/user/userSlice";
 import SingleProductCard from "../components/SingleProductCard";
 
 const SingleProduct = () => {
@@ -29,13 +39,12 @@ const SingleProduct = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const getProductId = location.pathname.split("/")[2];
-  console.log(getProductId);
+
   const dispatch = useDispatch();
   const productState = useSelector((state) => state?.product?.singleproduct);
-  console.log(productState?.totalrating);
+
   const productsState = useSelector((state) => state?.product?.product);
   const cartState = useSelector((state) => state?.auth?.cartProducts);
-  console.log(cartState);
 
   useEffect(() => {
     dispatch(getAProduct(getProductId));
@@ -73,15 +82,6 @@ const SingleProduct = () => {
       );
       navigate("/cart");
     }
-  };
-
-  const props = {
-    width: 594,
-    height: 600,
-    zoomWidth: 600,
-    img:
-      activeImage ||
-      "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?cs=srgb&dl=pexels-fernando-arcos-190819.jpg&fm=jpg", // Use active image
   };
 
   const copyToClipboard = (text) => {
@@ -130,102 +130,163 @@ const SingleProduct = () => {
   return (
     <>
       <Meta title={"Product Name"} />
-      <BreadCrumb title={productState?.title} />
-      <Container class1="main-product-wrapper py-5 home-wrapper-2">
-        <div className="row">
-          <div className="col-6">
-            <div className="main-product-image">
-              <div>
-                <ReactImageZoom {...props} />
-              </div>
+      <BreadCrumb title="Product Name" />
+      <div className="product-details-area py-24">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 col-sm-12 col-xs-12 mb-lm-30px mb-md-30px mb-sm-30px">
+              <Swiper
+                modules={[Navigation, Thumbs]}
+                navigation
+                className="swiper-container zoom-top"
+              >
+                {productState?.images.map((item, index) => (
+                  <SwiperSlide key={index}>
+                    <img
+                      className="img-responsive m-auto"
+                      src={item?.url}
+                      alt="Product Zoom"
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+              <Swiper
+                modules={[Navigation]}
+                navigation
+                slidesPerView={4}
+                spaceBetween={10}
+                className="swiper-container mt-20 zoom-thumbs slider-nav-style-1 small-nav"
+              >
+                {productState?.images.map((item, index) => (
+                  <SwiperSlide key={index}>
+                    <img
+                      className="img-responsive m-auto"
+                      src={item?.url}
+                      alt="Product Zoom"
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             </div>
-            <div className="other-product-images d-flex flex-wrap gap-15">
-              {productState?.images.map((item, index) => (
-                <div
-                  key={index}
-                  className={`thumbnail ${
-                    activeImage === item.url ? "active-thumbnail" : ""
-                  }`}
-                  onClick={() => setActiveImage(item.url)} // Set active image
-                  style={{
-                    border:
-                      activeImage === item.url ? "2px solid #000" : "none",
+
+            <div
+              className="col-lg-6 col-sm-12 col-xs-12"
+              data-aos="fade-up"
+              data-aos-delay="200"
+            >
+              <div className="product-details-content quickview-content ml-25px">
+                <h2>{productState?.title}</h2>
+                <div className="pricing-meta">
+                  <ul className="d-flex">
+                    <li className="new-price">₹ {productState?.price}</li>
+                  </ul>
+                </div>
+                <div className="pro-details-rating-wrap">
+                  <div className="rating-product">
+                    <ReactStars
+                      count={5}
+                      size={24}
+                      value={productState?.totalrating}
+                      edit={false}
+                      activeColor="#ffd700"
+                    />
+                    {/* {productState?.totalrating.map((_, i) => (
+                      // <i className="fa fa-star" key={i}></i>
+                      <FaStar color="yellow" key={i} />
+                    ))} */}
+                  </div>
+                  <span className="read-review">
+                    <a className="reviews" href="#">
+                      (5 Customer Review)
+                    </a>
+                  </span>
+                </div>
+                <p
+                  className="mt-10"
+                  dangerouslySetInnerHTML={{
+                    __html: productState?.description,
                   }}
-                >
-                  <img
-                    src={item?.url}
-                    className="img-fluid"
-                    alt={`Product Thumbnail ${index + 1}`}
-                    style={{ cursor: "pointer" }}
-                  />
+                ></p>
+                <div className="pro-details-categories-info pro-details-same-style d-flex m-0">
+                  <span>Brand:</span>
+                  <ul className="d-flex">
+                    <li>
+                      <Link>{productState?.brand}</Link>
+                    </li>
+                  </ul>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="col-6">
-            <div className="main-product-details">
-              <div className="border-bottom">
-                <h3 className="title">{productState?.title}</h3>
-              </div>
-              <div className="border-bottom py-3">
-                <p className="price">₹ {productState?.price}</p>
-                <div className="d-flex align-items-center gap-10">
-                  <ReactStars
-                    count={5}
-                    size={24}
-                    value={productState?.totalrating}
-                    edit={false}
-                    activeColor="#ffd700"
-                  />
-                  <p className="mb-0 t-review">( 2 Reviews )</p>
+                <div className="pro-details-categories-info pro-details-same-style d-flex my-1">
+                  <span>Categories: </span>
+                  <ul className="d-flex">
+                    <li>
+                      <Link>{productState?.category} </Link>
+                    </li>
+                  </ul>
                 </div>
-                <a className="review-btn" href="#review">
-                  Write a Review
-                </a>
-              </div>
-              <div className=" py-3">
-                <div className="d-flex gap-10 align-items-center my-2">
-                  <h3 className="product-heading">Type :</h3>
-                  <p className="product-data">Watch</p>
+                <div className="pro-details-categories-info pro-details-same-style d-flex my-1">
+                  <span>Tags: </span>
+                  <ul className="d-flex">
+                    <li>
+                      <Link>{productState?.tags}</Link>
+                    </li>
+                  </ul>
                 </div>
-                <div className="d-flex gap-10 align-items-center my-2">
-                  <h3 className="product-heading">Brand :</h3>
-                  <p className="product-data">{productState?.brand}</p>
+                <div className="pro-details-categories-info pro-details-same-style d-flex my-1">
+                  <span>Availablity:</span>
+                  <ul className="d-flex">
+                    <li>
+                      <Link>In Stock</Link>
+                    </li>
+                  </ul>
                 </div>
-                <div className="d-flex gap-10 align-items-center my-2">
-                  <h3 className="product-heading">Category :</h3>
-                  <p className="product-data">{productState?.category}</p>
+                <div className="pro-details-categories-info pro-details-same-style d-flex my-1">
+                  <span>SKU:</span>
+                  <ul className="d-flex">
+                    <li>
+                      <Link>Ch-256xl</Link>
+                    </li>
+                  </ul>
                 </div>
-                <div className="d-flex gap-10 align-items-center my-2">
-                  <h3 className="product-heading">Tags :</h3>
-                  <p className="product-data">{productState?.tags}</p>
+                <div className="pro-details-categories-info pro-details-same-style d-flex my-1">
+                  <span>Product Link:</span>
+                  <ul className="d-flex">
+                    <li>
+                      <a
+                        href="javascript:void(0)"
+                        onClick={() => {
+                          copyToClipboard(window.location.href);
+                        }}
+                      >
+                        Copy Product Link
+                      </a>
+                    </li>
+                  </ul>
                 </div>
-                <div className="d-flex gap-10 align-items-center my-2">
-                  <h3 className="product-heading">Availablity :</h3>
-                  <p className="product-data">In Stock</p>
+                <div className="pro-details-categories-info pro-details-same-style d-flex my-4">
+                  <span>Color:</span>
+                  <ul className="d-flex mx-2">
+                    <li>
+                      <Color
+                        setColor={setColor}
+                        colorData={productState?.color}
+                        selectedColor={selectedColor}
+                        setSelectedColor={setSelectedColor}
+                      />
+                    </li>
+                  </ul>
                 </div>
 
-                <div className="d-flex gap-10 flex-column mt-2 mb-3">
-                  <h3 className="product-heading">Color :</h3>
-                  <Color
-                    setColor={setColor}
-                    colorData={productState?.color}
-                    selectedColor={selectedColor}
-                    setSelectedColor={setSelectedColor}
-                  />
-                </div>
-
-                <div className="d-flex align-items-center gap-15 flex-row mt-2 mb-3">
+                <div className="pro-details-quality">
                   {alreadyAdded === false && (
                     <>
-                      <h3 className="product-heading">Quantity :</h3>
-                      <div className="">
+                      <div className="cart-plus-minus">
                         <input
                           type="number"
                           name=""
                           min={1}
                           max={10}
-                          className="form-control"
+                          className="cart-plus-minus-box"
                           style={{ width: "70px" }}
                           id=""
                           onChange={(e) => setQuantity(e.target.value)}
@@ -234,17 +295,10 @@ const SingleProduct = () => {
                       </div>
                     </>
                   )}
-                  <div
-                    className={
-                      alreadyAdded
-                        ? "ms-0"
-                        : "ms-5" + "d-flex align-items-center gap-30 ms-5"
-                    }
-                  >
+                  <div className="pro-details-cart">
+                    {/* <button className="add-cart">Add To Cart</button> */}
                     <button
-                      className="button border-0"
-                      /*  data-bs-toggle="modal"
-                      data-bs-target="#staticBackdrop" */
+                      className="add-cart"
                       type="button"
                       onClick={() => {
                         alreadyAdded ? navigate("/cart") : uploadCart();
@@ -252,160 +306,180 @@ const SingleProduct = () => {
                     >
                       {alreadyAdded ? "Go To Cart" : "Add to Cart"}
                     </button>
-                    {/*  <button className="button signup">Buy It Now</button> */}
                   </div>
-                </div>
-                <div className="d-flex align-items-center gap-15">
-                  <div>
-                    <a href="">
-                      <TbGitCompare className="fs-5 me-2" /> Add to Compare
-                    </a>
+                  <div className="pro-details-compare-wishlist pro-details-wishlist">
+                    <Link
+                      onClick={() =>
+                        dispatch(addUserWishlist(productState._id))
+                      }
+                    >
+                      <CiHeart size={30} />
+                    </Link>
                   </div>
-                  <div>
-                    <a href="">
-                      <AiOutlineHeart className="fs-5 me-2" /> Add to Wishlist
-                    </a>
+                  <div className="pro-details-compare-wishlist pro-details-wishlist">
+                    <Link>
+                      <SlRefresh />
+                    </Link>
                   </div>
-                </div>
-                <div className="d-flex gap-10 flex-column  my-3">
-                  <h3 className="product-heading">Shipping & Returns :</h3>
-                  <p className="product-data">
-                    Free shipping and returns available on all orders! <br /> We
-                    ship all US domestic orders within
-                    <b>5-10 business days!</b>
-                  </p>
-                </div>
-                <div className="d-flex gap-10 align-items-center my-3">
-                  <h3 className="product-heading">Product Link:</h3>
-                  <a
-                    href="javascript:void(0);"
-                    onClick={() => {
-                      copyToClipboard(window.location.href);
-                    }}
-                  >
-                    Copy Product Link
-                  </a>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </Container>
-      <Container class1="description-wrapper py-5 home-wrapper-2">
-        <div className="row">
-          <div className="col-12">
-            <h4>Description</h4>
-            <div className="bg-white p-3">
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: productState?.description,
-                }}
-              ></p>
-            </div>
-          </div>
-        </div>
-      </Container>
-      <Container class1="reviews-wrapper home-wrapper-2">
-        <div className="row">
-          <div className="col-12">
-            <h3 id="review">Reviews</h3>
-            <div className="review-inner-wrapper">
-              <div className="review-head d-flex justify-content-between align-items-end">
-                <div>
-                  <h4 className="mb-2">Customer Reviews</h4>
-                  <div className="d-flex align-items-center gap-10">
-                    <ReactStars
-                      count={5}
-                      size={24}
-                      value={productState?.totalrating}
-                      edit={false}
-                      activeColor="#ffd700"
-                    />
-                    <p className="mb-0">Based on 2 Reviews</p>
-                  </div>
-                </div>
-
-                <div>
-                  <a className="text-dark text-decoration-underline" href="">
-                    Write a Review
-                  </a>
-                </div>
-              </div>
-              <div className="review-form py-4">
-                <h4>Write a Review</h4>
-                <div>
-                  <ReactStars
-                    count={5}
-                    size={24}
-                    value={4}
-                    edit={true}
-                    activeColor="#ffd700"
-                    onChange={(e) => {
-                      setStar(e);
-                    }}
-                  />
-                </div>
-                <div>
-                  <textarea
-                    name=""
-                    id=""
-                    className="w-100 form-control"
-                    cols="30"
-                    rows="4"
-                    placeholder="Comments"
-                    onChange={(e) => {
-                      setComment(e.target.value);
-                    }}
-                  ></textarea>
-                </div>
-                <div className="d-flex justify-content-end mt-3">
+              <div className="description-review-wrapper">
+                <div className="description-review-topbar nav">
+                  <button data-bs-toggle="tab" data-bs-target="#des-details2">
+                    Information
+                  </button>
                   <button
-                    onClick={addRatingToProduct}
-                    className="button border-0"
-                    type="button"
+                    className="active"
+                    data-bs-toggle="tab"
+                    data-bs-target="#des-details1"
                   >
-                    Submit Review
+                    Description
+                  </button>
+                  <button data-bs-toggle="tab" data-bs-target="#des-details3">
+                    Reviews (02)
                   </button>
                 </div>
-              </div>
-              <div className="reviews mt-4">
-                {productState &&
-                  productState.ratings?.map((item, index) => {
-                    return (
-                      <div key={index} className="review">
-                        <div className="d-flex gap-10 align-items-center">
-                          <ReactStars
-                            count={5}
-                            size={24}
-                            value={item?.star}
-                            edit={false}
-                            activeColor="#ffd700"
-                          />
+                <div className="tab-content description-review-bottom">
+                  <div id="des-details2" className="tab-pane">
+                    <div className="product-anotherinfo-wrapper text-start">
+                      <ul>
+                        <li>
+                          <span>Weight</span> 400 g
+                        </li>
+                        <li>
+                          <span>Dimensions</span> 10 x 10 x 15 cm
+                        </li>
+                        <li>
+                          <span>Materials</span> 60% cotton, 40% polyester
+                        </li>
+                        <li>
+                          <span>Other Info</span> American heirloom jean shorts
+                          pug seitan letterpress
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div id="des-details1" className="tab-pane active">
+                    <div className="product-description-wrapper">
+                      <p
+                        className="mt-10"
+                        dangerouslySetInnerHTML={{
+                          __html: productState?.description,
+                        }}
+                      ></p>
+                    </div>
+                  </div>
+                  <div id="des-details3" className="tab-pane">
+                    <div className="row">
+                      <div className="col-lg-12">
+                        <div className="review-wrapper">
+                          {productState &&
+                            productState.ratings?.map((item, index) => {
+                              return (
+                                <div
+                                  key={index}
+                                  className="single-review child-review py-2"
+                                >
+                                  <div className="review-img">
+                                    <img src={commentIcon} alt="comment" />
+                                  </div>
+                                  <div className="review-content">
+                                    <div className="review-top-wrap">
+                                      <div className="review-left">
+                                        <ReactStars
+                                          count={5}
+                                          size={24}
+                                          value={item?.star}
+                                          edit={false}
+                                          activeColor="#ffd700"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="review-bottom">
+                                      <p>{item?.comment}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                         </div>
-                        <p className="mt-3">{item?.comment}</p>
                       </div>
-                    );
-                  })}
+                      <div className="col-lg-12">
+                        <div className="ratting-form-wrapper pl-50">
+                          <h2 className="text-2xl">Add a Review</h2>
+                          <div className="ratting-form">
+                            <form action="#">
+                              <div className="star-box">
+                                <span>Your rating:</span>
+                                <ReactStars
+                                  count={5}
+                                  size={24}
+                                  value={4}
+                                  edit={true}
+                                  activeColor="#ffd700"
+                                  onChange={(e) => {
+                                    setStar(e);
+                                  }}
+                                />
+                              </div>
+                              <div className="row">
+                                <div className="col-md-12">
+                                  <div className="rating-form-style form-submit">
+                                    <textarea
+                                      id=""
+                                      name="Your Review"
+                                      cols="30"
+                                      rows="4"
+                                      placeholder="Comments"
+                                      onChange={(e) => {
+                                        setComment(e.target.value);
+                                      }}
+                                    ></textarea>
+                                    <button
+                                      onClick={addRatingToProduct}
+                                      className="btn btn-primary btn-hover-color-primary"
+                                      type="submit"
+                                      value="Submit"
+                                    >
+                                      Submit
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </Container>
-      <Container class1="popular-wrapper py-5 home-wrapper-2">
-        <div className="row">
-          <div className="col-12">
-            <h3 className="section-heading">Our Popular Products</h3>
+        <Container class1="popular-wrapper py-5 ">
+          <div className="row">
+            <div className="col-12">
+              <div className="section-title text-center m-0">
+                <h2 className="title text-black text-6xl font-semibold py-4">
+                  Related Products
+                </h2>
+                <p className="text-2xl text-gray-600 pb-12">
+                  There are many variations of passages of Lorem Ipsum available
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="grid grid-cols-4 md:grid-cols-4 gap-6">
-          {popularProduct &&
-            popularProduct
-              ?.slice(0, 4)
-              .map((product) => (
-                <SingleProductCard key={product.id} product={product} />
-              ))}
-        </div>
-      </Container>
+          <div className="grid grid-cols-4 md:grid-cols-4 gap-6">
+            {popularProduct &&
+              popularProduct
+                ?.slice(0, 4)
+                .map((product) => (
+                  <SingleProductCard key={product.id} product={product} />
+                ))}
+          </div>
+        </Container>
+      </div>
     </>
   );
 };

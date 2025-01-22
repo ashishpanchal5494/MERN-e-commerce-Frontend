@@ -52,6 +52,11 @@ const Resetpassword = () => {
                   onChange={formik.handleChange("password")}
                   onBlur={formik.handleBlur("password")}
                   value={formik.values.password}
+                  style={{
+                    border: "1px solid #ccc",
+                    borderRadius: "1px", // Optional
+                    padding: "10px", // Optional
+                  }}
                 />
                 <div className="error">
                   {formik.touched.password && formik.errors.password}
