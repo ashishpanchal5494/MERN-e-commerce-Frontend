@@ -249,8 +249,8 @@ function Home() {
           <div className="grid grid-cols-4 md:grid-cols-4 gap-6">
             {getRandomProducts &&
               getRandomProducts(activeTab) // Call the function with the active tab
-                ?.map((product) => (
-                  <SingleProductCard key={product.id} product={product} />
+                ?.map((product, index) => (
+                  <SingleProductCard key={index} product={product} />
                 ))}
           </div>
         </div>
@@ -353,9 +353,9 @@ function Home() {
             </div>
 
             <div>
-              {featuredProducts.slice(1).map((product) => (
+              {featuredProducts.slice(1).map((product, index) => (
                 <div
-                  key={product.id}
+                  key={index}
                   className="feature-right-content flex items-start mb-8 border-[2.5px] border-gray-300 rounded-xl"
                 >
                   <div className="image-side relative">
@@ -517,7 +517,9 @@ function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {getRandomBlogs &&
-              getRandomBlogs().map((blog) => <BlogCard blog={blog} />)}
+              getRandomBlogs().map((blog, index) => (
+                <BlogCard key={index} blog={blog} />
+              ))}
           </div>
         </div>
       </div>

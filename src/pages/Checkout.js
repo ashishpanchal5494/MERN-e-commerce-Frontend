@@ -127,7 +127,7 @@ const Checkout = () => {
 
             // Verify payment on the server
             const verificationResult = await axios.post(
-              "http://localhost:5000/api/user/order/paymentVerification",
+              "https://mern-e-commerce-frontend-steel.vercel.app/user/order/paymentVerification",
               paymentData,
               config
             );

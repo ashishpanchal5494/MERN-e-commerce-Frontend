@@ -17,20 +17,18 @@ function OurStore() {
 
   const dispatch = useDispatch();
   const productState = useSelector((state) => state?.product?.product || []);
+  const memoizedProductState = React.useMemo(
+    () => productState,
+    [productState]
+  );
 
   useEffect(() => {
     dispatch(getAllProducts());
   }, [dispatch]);
 
+  // Filter products when search term, category, or price range changes
   useEffect(() => {
-    if (productState) {
-      setFilteredProducts(productState);
-    }
-  }, [productState]);
-
-  // Search and Filter Logic
-  useEffect(() => {
-    const filtered = productState?.filter((product) => {
+    const filtered = memoizedProductState?.filter((product) => {
       const matchesSearch =
         product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,11 +42,16 @@ function OurStore() {
 
       return matchesSearch && matchesCategory && matchesPrice;
     });
-    setFilteredProducts(filtered || []);
-    setCurrentPage(1);
-  }, [searchTerm, selectedCategory, productState, priceRange]);
 
-  // Pagination Logic
+    setFilteredProducts(filtered || []);
+  }, [searchTerm, selectedCategory, memoizedProductState, priceRange]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, priceRange]);
+
+  // Pagination logic
   const indexOfLastProduct = currentPage * productPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productPerPage;
   const currentProducts = filteredProducts.slice(
@@ -185,8 +188,11 @@ function OurStore() {
                   grid === 4 ? "grid-cols-4" : "grid-cols-3"
                 } sm:grid-cols-3`}
               >
-                {currentProducts.map((product) => (
-                  <SingleProductCard key={product.id} product={product} />
+                {currentProducts.map((product, index) => (
+                  <SingleProductCard
+                    key={product.id || index}
+                    product={product}
+                  />
                 ))}
               </div>
 

@@ -19,7 +19,7 @@ function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const authState = useSelector((state) => state.auth);
-  console.log(authState);
+
   const { user, isSuccess, isLoading } = authState;
 
   const formik = useFormik({

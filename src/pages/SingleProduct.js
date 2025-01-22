@@ -8,6 +8,7 @@ import commentIcon from "../images/testimonial/1.webp";
 import { SlRefresh } from "react-icons/sl";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Container from "../components/Container";
+import DOMPurify from "dompurify";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -32,6 +33,7 @@ const SingleProduct = () => {
   const [color, setColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [alreadyAdded, setAlreadyAdded] = useState(false);
+  console.log(alreadyAdded);
   const [activeImage, setActiveImage] = useState("");
 
   const [selectedColor, setSelectedColor] = useState(null);
@@ -47,18 +49,28 @@ const SingleProduct = () => {
   const cartState = useSelector((state) => state?.auth?.cartProducts);
 
   useEffect(() => {
-    dispatch(getAProduct(getProductId));
-    dispatch(getUserCart());
-    dispatch(getAllProducts());
+    const fetchData = async () => {
+      await dispatch(getAProduct(getProductId));
+      await dispatch(getUserCart());
+      await dispatch(getAllProducts());
+    };
+    fetchData();
   }, [getProductId, dispatch]);
 
   useEffect(() => {
-    const isProductInCart = cartState?.some(
-      (cartItem) =>
-        cartItem.color._id === selectedColor &&
-        cartItem.productId._id === getProductId
-    );
-    setAlreadyAdded(isProductInCart);
+    if (selectedColor) {
+      console.log("Checking if product is in cart for color:", selectedColor);
+      const isProductInCart = cartState?.some(
+        (cartItem) =>
+          cartItem?.color?._id === selectedColor &&
+          cartItem?.productId?._id === getProductId
+      );
+      console.log("Is product in cart:", isProductInCart);
+      setAlreadyAdded(isProductInCart || false); // Ensure a boolean value is set
+    } else {
+      console.log("No color selected; setting alreadyAdded to false");
+      setAlreadyAdded(false);
+    }
   }, [cartState, getProductId, selectedColor]);
 
   useEffect(() => {
@@ -96,35 +108,32 @@ const SingleProduct = () => {
 
   const [popularProduct, setPopularProduct] = useState([]);
   useEffect(() => {
-    let data = [];
-    for (let index = 0; index < productsState.length; index++) {
-      const element = productsState[index];
-      if (element.tags === "popular") {
-        data.push(element);
-      }
+    if (Array.isArray(productsState)) {
+      const data = productsState.filter(
+        (product) => product.tags === "popular"
+      );
       setPopularProduct(data);
+    } else {
+      console.error("productsState is not an array:", productsState);
     }
   }, [productsState]);
-
   const [star, setStar] = useState(null);
   const [comment, setComment] = useState(null);
 
   const addRatingToProduct = () => {
-    if (star === null) {
-      toast.error("Please add star rating");
-      return false;
-    } else if (comment === null) {
-      toast.error("Please Write Review About the Product.");
-      return false;
-    } else {
-      const data = { star: star, comment: comment, prodId: getProductId };
-      console.log(data);
-      dispatch(addRating(data));
-      setTimeout(() => {
-        dispatch(getAProduct(getProductId));
-      }, 100);
+    if (star === null || comment === null) {
+      toast.error(
+        star === null
+          ? "Please add star rating"
+          : "Please Write Review About the Product."
+      );
+      return;
     }
-    return false;
+
+    const data = { star, comment, prodId: getProductId };
+    dispatch(addRating(data)).then(() => {
+      dispatch(getAProduct(getProductId)); // Refresh product details
+    });
   };
 
   return (
@@ -187,7 +196,7 @@ const SingleProduct = () => {
                     <ReactStars
                       count={5}
                       size={24}
-                      value={productState?.totalrating}
+                      value={Number(productState?.totalrating) || 5}
                       edit={false}
                       activeColor="#ffd700"
                     />
@@ -205,7 +214,7 @@ const SingleProduct = () => {
                 <p
                   className="mt-10"
                   dangerouslySetInnerHTML={{
-                    __html: productState?.description,
+                    __html: DOMPurify.sanitize(productState?.description || ""),
                   }}
                 ></p>
                 <div className="pro-details-categories-info pro-details-same-style d-flex m-0">
@@ -252,14 +261,14 @@ const SingleProduct = () => {
                   <span>Product Link:</span>
                   <ul className="d-flex">
                     <li>
-                      <a
-                        href="javascript:void(0)"
-                        onClick={() => {
-                          copyToClipboard(window.location.href);
-                        }}
+                      <button
+                        type="button"
+                        onClick={() => copyToClipboard(window.location.href)}
+                        className="copy-link-button"
+                        aria-label="Copy Product Link"
                       >
                         Copy Product Link
-                      </a>
+                      </button>
                     </li>
                   </ul>
                 </div>
@@ -364,7 +373,9 @@ const SingleProduct = () => {
                       <p
                         className="mt-10"
                         dangerouslySetInnerHTML={{
-                          __html: productState?.description,
+                          __html: DOMPurify.sanitize(
+                            productState?.description || ""
+                          ),
                         }}
                       ></p>
                     </div>
@@ -389,7 +400,7 @@ const SingleProduct = () => {
                                         <ReactStars
                                           count={5}
                                           size={24}
-                                          value={item?.star}
+                                          value={Number(item?.star) || 0}
                                           edit={false}
                                           activeColor="#ffd700"
                                         />
@@ -474,8 +485,11 @@ const SingleProduct = () => {
             {popularProduct &&
               popularProduct
                 ?.slice(0, 4)
-                .map((product) => (
-                  <SingleProductCard key={product.id} product={product} />
+                .map((product, index) => (
+                  <SingleProductCard
+                    key={product.id || index}
+                    product={product}
+                  />
                 ))}
           </div>
         </Container>
