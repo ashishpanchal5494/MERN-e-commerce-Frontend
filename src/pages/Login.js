@@ -29,7 +29,7 @@ function Login() {
       try {
         await dispatch(loginUser(values)).unwrap();
         formik.resetForm();
-        navigate("/");
+        window.location.href = "/";
       } catch (error) {
         console.error("Login failed:", error.message);
       } finally {

@@ -256,7 +256,7 @@ const AccountDashboard = () => {
                         ?.firstName +
                         " " +
                         orderState?.[orderState.length - 1]?.shippingInfo
-                          ?.lastName}
+                          ?.lastName || "Full Name"}
                     </strong>
                   </p>
                   <address>

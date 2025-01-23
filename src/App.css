@@ -3121,3 +3121,31 @@ Pages - My Account
   font-size: 20px;
   color: #ffde00;
 }
+
+
+.empty-text-contant a.empty-cart-btn {
+  padding: 15px 25px;
+  display: inline-block;
+  background: #266bf9;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 30px;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+  text-transform: uppercase;
+}
+.empty-text-contant a.empty-cart-btn:hover {
+  background-color: #000000;
+}
+.empty-text-contant a.empty-cart-btn:hover i {
+  -webkit-transform: translate(-5px, 0px);
+          transform: translate(-5px, 0px);
+}
+.empty-text-contant a.empty-cart-btn i {
+  font-size: 14px !important;
+  color: #fff;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+  display: inline-block;
+}

@@ -34,7 +34,6 @@ const SingleProduct = () => {
   const [quantity, setQuantity] = useState(1);
   const [alreadyAdded, setAlreadyAdded] = useState(false);
   console.log(alreadyAdded);
-  const [activeImage, setActiveImage] = useState("");
 
   const [selectedColor, setSelectedColor] = useState(null);
 
@@ -44,7 +43,9 @@ const SingleProduct = () => {
 
   const dispatch = useDispatch();
   const productState = useSelector((state) => state?.product?.singleproduct);
-
+  const authState = useSelector((state) => state.auth);
+  console.log(authState);
+  const { user } = authState;
   const productsState = useSelector((state) => state?.product?.product);
   const cartState = useSelector((state) => state?.auth?.cartProducts);
 
@@ -58,7 +59,7 @@ const SingleProduct = () => {
   }, [getProductId, dispatch]);
 
   useEffect(() => {
-    if (selectedColor) {
+    if (cartState && selectedColor) {
       console.log("Checking if product is in cart for color:", selectedColor);
       const isProductInCart = cartState?.some(
         (cartItem) =>
@@ -72,12 +73,6 @@ const SingleProduct = () => {
       setAlreadyAdded(false);
     }
   }, [cartState, getProductId, selectedColor]);
-
-  useEffect(() => {
-    if (productState?.images?.length > 0) {
-      setActiveImage(productState.images[0].url); // Set the first image as default
-    }
-  }, [productState]);
 
   const uploadCart = () => {
     if (color === null) {
@@ -286,51 +281,64 @@ const SingleProduct = () => {
                   </ul>
                 </div>
 
-                <div className="pro-details-quality">
-                  {alreadyAdded === false && (
-                    <>
-                      <div className="cart-plus-minus">
-                        <input
-                          type="number"
-                          name=""
-                          min={1}
-                          max={10}
-                          className="cart-plus-minus-box"
-                          style={{ width: "70px" }}
-                          id=""
-                          onChange={(e) => setQuantity(e.target.value)}
-                          value={quantity}
-                        />
-                      </div>
-                    </>
-                  )}
-                  <div className="pro-details-cart">
-                    {/* <button className="add-cart">Add To Cart</button> */}
-                    <button
-                      className="add-cart"
-                      type="button"
-                      onClick={() => {
-                        alreadyAdded ? navigate("/cart") : uploadCart();
-                      }}
+                {user === null ? (
+                  <p>
+                    Already have an account?{" "}
+                    <a
+                      href="/login"
+                      className="text-blue-600 text-xl font-semibold"
+                      to="/login"
                     >
-                      {alreadyAdded ? "Go To Cart" : "Add to Cart"}
-                    </button>
+                      Log in instead!
+                    </a>
+                  </p>
+                ) : (
+                  <div className="pro-details-quality">
+                    {alreadyAdded === false && (
+                      <>
+                        <div className="cart-plus-minus">
+                          <input
+                            type="number"
+                            name=""
+                            min={1}
+                            max={10}
+                            className="cart-plus-minus-box"
+                            style={{ width: "70px" }}
+                            id=""
+                            onChange={(e) => setQuantity(e.target.value)}
+                            value={quantity}
+                          />
+                        </div>
+                      </>
+                    )}
+                    <div className="pro-details-cart">
+                      {/* <button className="add-cart">Add To Cart</button> */}
+                      <button
+                        className="add-cart"
+                        type="button"
+                        onClick={() => {
+                          alreadyAdded ? navigate("/cart") : uploadCart();
+                        }}
+                      >
+                        {alreadyAdded ? "Go To Cart" : "Add to Cart"}
+                      </button>
+                    </div>
+                    <div className="pro-details-compare-wishlist pro-details-wishlist">
+                      <Link
+                        onClick={() =>
+                          dispatch(addUserWishlist(productState._id))
+                        }
+                      >
+                        <CiHeart size={30} />
+                      </Link>
+                    </div>
+                    <div className="pro-details-compare-wishlist pro-details-wishlist">
+                      <Link>
+                        <SlRefresh />
+                      </Link>
+                    </div>
                   </div>
-                  <div className="pro-details-compare-wishlist pro-details-wishlist">
-                    <Link
-                      onClick={() =>
-                        dispatch(addUserWishlist(productState._id))
-                      }
-                    >
-                      <CiHeart size={30} />
-                    </Link>
-                  </div>
-                  <div className="pro-details-compare-wishlist pro-details-wishlist">
-                    <Link>
-                      <SlRefresh />
-                    </Link>
-                  </div>
-                </div>
+                )}
               </div>
               <div className="description-review-wrapper">
                 <div className="description-review-topbar nav">

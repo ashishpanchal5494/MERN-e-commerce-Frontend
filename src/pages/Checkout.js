@@ -132,6 +132,12 @@ const Checkout = () => {
               config
             );
 
+            // const verificationResult = await axios.post(
+            //   "http://localhost:5000/api/user/order/paymentVerification",
+            //   paymentData,
+            //   config
+            // );
+
             if (verificationResult.status === 200) {
               // Update payment info state
               await setPaymentInfo({
