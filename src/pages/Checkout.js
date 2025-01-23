@@ -97,7 +97,7 @@ const Checkout = () => {
 
       // Create an order on the server
       const result = await axios.post(
-        "https://mern-e-commerce-frontend-steel.vercel.app/user/order/checkout",
+        "https://vishwakarma-backend.onrender.com/api/user/order/checkout",
         { amount: totalAmount + 5 },
         config
       );
@@ -133,7 +133,7 @@ const Checkout = () => {
             // );
 
             const verificationResult = await axios.post(
-              "http://localhost:5000/api/user/order/paymentVerification",
+              "https://vishwakarma-backend.onrender.com/api/user/order/paymentVerification",
               paymentData,
               config
             );
