@@ -97,7 +97,7 @@ const Checkout = () => {
 
       // Create an order on the server
       const result = await axios.post(
-        "http://localhost:5000/api/user/order/checkout",
+        "https://mern-e-commerce-frontend-steel.vercel.app/user/order/checkout",
         { amount: totalAmount + 5 },
         config
       );
