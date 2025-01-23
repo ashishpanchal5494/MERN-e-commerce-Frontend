@@ -126,8 +126,14 @@ const Checkout = () => {
             };
 
             // Verify payment on the server
+            // const verificationResult = await axios.post(
+            //   "https://mern-e-commerce-frontend-steel.vercel.app/user/order/paymentVerification",
+            //   paymentData,
+            //   config
+            // );
+
             const verificationResult = await axios.post(
-              "https://mern-e-commerce-frontend-steel.vercel.app/user/order/paymentVerification",
+              "http://localhost:5000/api/user/order/paymentVerification",
               paymentData,
               config
             );
